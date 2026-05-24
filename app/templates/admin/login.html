@@ -1,0 +1,32 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Iniciar Sesión Administrador{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-box">
+        <div class="login-logo">
+            <span>⚙️</span>
+            <h2>RutaYa Admin</h2>
+            <p>Panel de Administración</p>
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" name="email" class="form-control" placeholder="admin@rutaya.com" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Contraseña</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-rutaya-amber w-100">
+                <i class="ti ti-login"></i> Ingresar al sistema
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

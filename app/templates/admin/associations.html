@@ -1,0 +1,140 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Asociaciones{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-building"></i> Gestión de Asociaciones
+        </h4>
+        <p class="text-muted">Administra las asociaciones de mototaxistas del sistema</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- Formulario agregar -->
+<div class="rutaya-card mb-4">
+    <h5 class="fw-bold mb-3" style="color:#1a1a2e;">
+        <i class="ti ti-plus"></i> Agregar nueva asociación
+    </h5>
+    <form method="POST" action="{{ url_for('admin.add_association') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" name="name" class="form-control"
+                    placeholder="Ej: Asociación de Mototaxistas Trinidad" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Abreviación</label>
+                <input type="text" name="abbreviation" class="form-control"
+                    placeholder="Ej: AMOT" required maxlength="20">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-rutaya-amber w-100">
+                    <i class="ti ti-plus"></i> Agregar asociación
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Lista de asociaciones -->
+<div class="rutaya-table">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Abreviación</th>
+                <th>Nombre completo</th>
+                <th>Mototaxistas registrados</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assoc in associations %}
+            <tr>
+                <td>{{ assoc.id }}</td>
+                <td><strong>{{ assoc.abbreviation }}</strong></td>
+                <td>{{ assoc.name }}</td>
+                <td>
+                    <span class="badge bg-secondary">{{ assoc.driver_count }}</span>
+                </td>
+                <td>
+                    {% if assoc.is_active %}
+                        <span class="badge-completed">Activa</span>
+                    {% else %}
+                        <span class="badge-cancelled">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- Editar -->
+                    <button class="btn btn-outline-secondary btn-sm"
+                        onclick="editAssoc({{ assoc.id }}, '{{ assoc.name }}', '{{ assoc.abbreviation }}')"
+                        style="width:auto; padding:4px 10px;">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <!-- Activar/Desactivar -->
+                    <a href="{{ url_for('admin.toggle_association', assoc_id=assoc.id) }}"
+                       class="btn btn-sm ms-1 {% if assoc.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                       style="width:auto; padding:4px 10px;">
+                        {% if assoc.is_active %}
+                            <i class="ti ti-ban"></i>
+                        {% else %}
+                            <i class="ti ti-check"></i>
+                        {% endif %}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal editar -->
+<div id="edit-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:90%; max-width:500px;">
+        <h5 class="fw-bold mb-3">Editar asociación</h5>
+        <form method="POST" action="{{ url_for('admin.edit_association') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="assoc_id" id="edit-id">
+            <div class="mb-3">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" name="name" id="edit-name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Abreviación</label>
+                <input type="text" name="abbreviation" id="edit-abbr" class="form-control" required maxlength="20">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-rutaya-amber flex-grow-1">
+                    <i class="ti ti-device-floppy"></i> Guardar
+                </button>
+                <button type="button" class="btn btn-outline-secondary flex-grow-1"
+                    onclick="document.getElementById('edit-modal').style.display='none'">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editAssoc(id, name, abbr) {
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-abbr').value = abbr;
+    document.getElementById('edit-modal').style.display = 'flex';
+}
+</script>
+{% endblock %}

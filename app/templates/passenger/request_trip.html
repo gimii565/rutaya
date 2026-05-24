@@ -1,0 +1,303 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Solicitar Taxi{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/passenger.css') }}">
+<style>
+    #map { height: 380px; width: 100%; border-radius: 12px; }
+    .search-box { width: 100%; padding: 10px 16px; border: 1.5px solid #dfe6e9; border-radius: 10px; font-size: 14px; font-family: 'Poppins', sans-serif; }
+    .search-box:focus { outline: none; border-color: #f9ca24; }
+    .location-btn { background: #f9ca24; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-weight: 600; color: #1a1a2e; }
+    .location-btn:hover { background: #f0932b; }
+    .fare-box { background: linear-gradient(135deg, #f9ca24, #f0932b); border-radius: 12px; padding: 1rem; color: #1a1a2e; text-align: center; }
+    .hint-text { font-size: 12px; color: #b2bec3; margin-top: 4px; }
+    .detecting { color: #00b894; font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="rutaya-card">
+            <div class="text-center mb-3">
+                <span style="font-size:40px;">📍</span>
+                <h4 class="fw-bold mt-1" style="color:#1a1a2e;">Solicitar Moto</h4>
+                <p class="text-muted">Tu ubicación se detecta automáticamente</p>
+            </div>
+
+            <meta name="csrf-token" content="{{ csrf_token() }}">
+
+            <!-- Mapa -->
+            <div id="map" class="mb-3"></div>
+            <p class="hint-text text-center mb-3">
+                <i class="ti ti-hand-finger"></i> Toca el mapa para marcar tu destino
+            </p>
+
+            <!-- Campos -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="ti ti-map-pin" style="color:#f9ca24"></i> Tu ubicación actual
+                </label>
+                <div class="d-flex gap-2">
+                    <input id="origin-input" type="text" class="search-box"
+                        placeholder="Detectando tu ubicación..." readonly
+                        style="background:#f8f9ff; cursor:default;">
+                    <button class="location-btn" onclick="useMyLocation()" title="Usar mi ubicación">
+                        <i class="ti ti-current-location"></i>
+                    </button>
+                </div>
+                <p class="hint-text" id="origin-status">
+                    <span class="detecting">⟳ Detectando ubicación GPS...</span>
+                </p>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="ti ti-flag" style="color:#e17055"></i> ¿A dónde vas?
+                </label>
+                <input id="destination-input" type="text" class="search-box"
+                    placeholder="Escribe o toca el mapa para marcar destino">
+                <p class="hint-text">Escribe un lugar o toca directamente en el mapa</p>
+            </div>
+
+            <!-- Estimado -->
+            <div class="fare-box mb-3" id="fare-box" style="display:none;">
+                <div class="row">
+                    <div class="col-4">
+                        <div style="font-size:12px;">Distancia</div>
+                        <div style="font-size:18px; font-weight:700;" id="distance-text">—</div>
+                    </div>
+                    <div class="col-4">
+                        <div style="font-size:12px;">Tiempo</div>
+                        <div style="font-size:18px; font-weight:700;" id="duration-text">—</div>
+                    </div>
+                    <div class="col-4">
+                        <div style="font-size:12px;">Tarifa est.</div>
+                        <div style="font-size:18px; font-weight:700;" id="fare-text">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <form method="POST" id="trip-form">
+                {{ form.hidden_tag() }}
+                <input type="hidden" id="origin-hidden" name="origin">
+                <input type="hidden" id="destination-hidden" name="destination">
+
+                <button type="submit" class="btn btn-rutaya-primary" id="request-btn" disabled>
+                    🏍️ Solicitar Moto Ahora
+                </button>
+                <a href="{{ url_for('passenger.dashboard') }}"
+                   class="btn btn-outline-secondary mt-2 w-100" style="border-radius:10px;">
+                    <i class="ti ti-arrow-left"></i> Volver
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let map, originMarker, destinationMarker, directionsService, directionsRenderer;
+let originLatLng = null, destinationLatLng = null;
+
+function initMap() {
+    const trinidad = { lat: -14.8333, lng: -64.9000 };
+
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: trinidad,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.TOP_RIGHT,
+            mapTypeIds: ['roadmap', 'satellite', 'hybrid']
+        },
+        streetViewControl: false,
+        fullscreenControl: true
+    });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: '#f9ca24', strokeWeight: 5 }
+    });
+
+    // Autocompletar destino con sugerencias
+    const destAC = new google.maps.places.Autocomplete(
+        document.getElementById('destination-input'),
+        {
+            componentRestrictions: { country: 'bo' },
+            bounds: new google.maps.LatLngBounds(
+                new google.maps.LatLng(-14.90, -65.00),
+                new google.maps.LatLng(-14.75, -64.85)
+            ),
+            strictBounds: false
+        }
+    );
+
+    destAC.addListener('place_changed', () => {
+        const place = destAC.getPlace();
+        if (place.geometry) {
+            destinationLatLng = place.geometry.location;
+            document.getElementById('destination-hidden').value = place.formatted_address;
+            setDestinationMarker(destinationLatLng, place.formatted_address);
+            map.panTo(destinationLatLng);
+            if (originLatLng) calculateRoute();
+        }
+    });
+
+    // Click en mapa para marcar destino
+    map.addListener('click', (e) => {
+        destinationLatLng = e.latLng;
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: destinationLatLng }, (results, status) => {
+            let address = '';
+            if (status === 'OK' && results[0]) {
+                address = results[0].formatted_address;
+            } else {
+                address = `${destinationLatLng.lat().toFixed(5)}, ${destinationLatLng.lng().toFixed(5)}`;
+            }
+            document.getElementById('destination-input').value = address;
+            document.getElementById('destination-hidden').value = address;
+            setDestinationMarker(destinationLatLng, address);
+            calculateRoute();
+        });
+    });
+
+    // Detectar ubicación automáticamente al cargar
+    useMyLocation();
+}
+
+function useMyLocation() {
+    document.getElementById('origin-status').innerHTML =
+        '<span class="detecting">⟳ Detectando ubicación GPS...</span>';
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            originLatLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: originLatLng }, (results, status) => {
+                let address = '';
+                if (status === 'OK' && results[0]) {
+                    address = results[0].formatted_address;
+                } else {
+                    address = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+                }
+                document.getElementById('origin-input').value = address;
+                document.getElementById('origin-hidden').value = address;
+                document.getElementById('origin-status').innerHTML =
+                    '<span style="color:#00b894;">✓ Ubicación detectada</span>';
+                setOriginMarker(originLatLng, address);
+                map.setCenter(originLatLng);
+                map.setZoom(16);
+            });
+
+            // Guardar ubicación en servidor
+            fetch('/api/location/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude
+                })
+            });
+
+        }, err => {
+            document.getElementById('origin-status').innerHTML =
+                '<span style="color:#e17055;">✗ No se pudo detectar ubicación. Activa el GPS.</span>';
+            document.getElementById('origin-input').placeholder = 'Escribe tu ubicación manualmente';
+            document.getElementById('origin-input').removeAttribute('readonly');
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        });
+    } else {
+        document.getElementById('origin-status').innerHTML =
+            '<span style="color:#e17055;">✗ Tu navegador no soporta GPS</span>';
+    }
+}
+
+function setOriginMarker(latLng, address) {
+    if (originMarker) originMarker.setMap(null);
+    originMarker = new google.maps.Marker({
+        position: latLng,
+        map: map,
+        title: 'Tu ubicación',
+        icon: {
+            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+            scaledSize: new google.maps.Size(40, 40)
+        },
+        animation: google.maps.Animation.DROP
+    });
+    document.getElementById('origin-hidden').value = address;
+    originLatLng = latLng;
+    if (destinationLatLng) calculateRoute();
+}
+
+function setDestinationMarker(latLng, address) {
+    if (destinationMarker) destinationMarker.setMap(null);
+    destinationMarker = new google.maps.Marker({
+        position: latLng,
+        map: map,
+        title: 'Destino',
+        icon: {
+            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scaledSize: new google.maps.Size(40, 40)
+        },
+        animation: google.maps.Animation.DROP
+    });
+    document.getElementById('destination-hidden').value = address;
+    destinationLatLng = latLng;
+    if (originLatLng) calculateRoute();
+}
+
+function calculateRoute() {
+    if (!originLatLng || !destinationLatLng) return;
+
+    directionsService.route({
+        origin: originLatLng,
+        destination: destinationLatLng,
+        travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: true
+    }, (result, status) => {
+        if (status === 'OK') {
+            directionsRenderer.setDirections(result);
+            const leg = result.routes[0].legs[0];
+            const distKm = (leg.distance.value / 1000).toFixed(1);
+            const fare = Math.max(10, (10 + distKm * 3.5)).toFixed(2);
+            document.getElementById('distance-text').textContent = leg.distance.text;
+            document.getElementById('duration-text').textContent = leg.duration.text;
+            document.getElementById('fare-text').textContent = `Bs. ${fare}`;
+            document.getElementById('fare-box').style.display = 'block';
+            document.getElementById('request-btn').disabled = false;
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend(originLatLng);
+            bounds.extend(destinationLatLng);
+            map.fitBounds(bounds);
+        } else {
+            document.getElementById('request-btn').disabled = false;
+            document.getElementById('fare-box').style.display = 'block';
+            document.getElementById('distance-text').textContent = 'N/A';
+            document.getElementById('duration-text').textContent = 'N/A';
+            document.getElementById('fare-text').textContent = 'Bs. 15';
+        }
+    });
+}
+
+document.getElementById('trip-form').addEventListener('submit', function(e) {
+    if (!document.getElementById('origin-hidden').value ||
+        !document.getElementById('destination-hidden').value) {
+        e.preventDefault();
+        alert('Por favor espera que se detecte tu ubicación y selecciona un destino.');
+    }
+});
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initMap" async defer></script>
+{% endblock %}

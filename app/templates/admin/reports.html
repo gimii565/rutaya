@@ -1,0 +1,216 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Reportes{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+.chart-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+.chart-title { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-chart-bar"></i> Panel de Reportes
+        </h4>
+        <p class="text-muted">Estadísticas y gráficas del sistema RutaYa</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- KPIs -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">🚖</div>
+            <div class="stat-value">{{ total_trips }}</div>
+            <div class="stat-label">Total viajes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">Bs. {{ total_earnings|round(2) }}</div>
+            <div class="stat-label">Total ingresos</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Total usuarios</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">{{ avg_rating|round(1) }}</div>
+            <div class="stat-label">Calificación promedio</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfica de viajes por día -->
+<div class="chart-card">
+    <div class="chart-title"><i class="ti ti-chart-line"></i> Viajes por día (últimos 7 días)</div>
+    <canvas id="tripsChart" height="100"></canvas>
+</div>
+
+<!-- Gráfica de ingresos por día -->
+<div class="chart-card">
+    <div class="chart-title"><i class="ti ti-chart-bar"></i> Ingresos por día (últimos 7 días)</div>
+    <canvas id="earningsChart" height="100"></canvas>
+</div>
+
+<!-- Gráfica de estados de viajes -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="chart-card">
+            <div class="chart-title"><i class="ti ti-chart-pie"></i> Distribución de viajes por estado</div>
+            <canvas id="statusChart" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-card">
+            <div class="chart-title"><i class="ti ti-chart-pie"></i> Distribución de usuarios</div>
+            <canvas id="usersChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Top taxistas -->
+<div class="chart-card">
+    <div class="chart-title"><i class="ti ti-award"></i> Top 5 taxistas por viajes completados</div>
+    {% if top_drivers %}
+    <div class="rutaya-table">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Taxista</th>
+                    <th>Viajes completados</th>
+                    <th>Total ganado</th>
+                    <th>Calificación promedio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for driver in top_drivers %}
+                <tr>
+                    <td><strong>{{ loop.index }}</strong></td>
+                    <td>{{ driver.name }}</td>
+                    <td>{{ driver.completed_trips }}</td>
+                    <td>Bs. {{ driver.total_earnings|round(2) }}</td>
+                    <td>
+                        {% if driver.avg_rating %}
+                            <span style="color:#f9ca24;">
+                                {% for i in range(driver.avg_rating|int) %}★{% endfor %}
+                            </span>
+                            ({{ driver.avg_rating|round(1) }})
+                        {% else %}
+                            <span class="text-muted">Sin calificaciones</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted text-center py-3">No hay datos disponibles aún.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const tripsData = {{ trips_by_day | tojson }};
+const earningsData = {{ earnings_by_day | tojson }};
+const statusData = {{ status_data | tojson }};
+const usersData = {{ users_data | tojson }};
+
+// Gráfica viajes por día
+new Chart(document.getElementById('tripsChart'), {
+    type: 'line',
+    data: {
+        labels: tripsData.map(d => d.date),
+        datasets: [{
+            label: 'Viajes',
+            data: tripsData.map(d => d.count),
+            borderColor: '#f9ca24',
+            backgroundColor: 'rgba(249,202,36,0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#f9ca24',
+            pointRadius: 5
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+
+// Gráfica ingresos por día
+new Chart(document.getElementById('earningsChart'), {
+    type: 'bar',
+    data: {
+        labels: earningsData.map(d => d.date),
+        datasets: [{
+            label: 'Ingresos (Bs.)',
+            data: earningsData.map(d => d.amount),
+            backgroundColor: 'rgba(0,184,148,0.7)',
+            borderColor: '#00b894',
+            borderWidth: 2,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Gráfica estados
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: statusData.map(d => d.label),
+        datasets: [{
+            data: statusData.map(d => d.count),
+            backgroundColor: ['#fdcb6e', '#74b9ff', '#a29bfe', '#55efc4', '#ff7675'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+// Gráfica usuarios
+new Chart(document.getElementById('usersChart'), {
+    type: 'doughnut',
+    data: {
+        labels: usersData.map(d => d.label),
+        datasets: [{
+            data: usersData.map(d => d.count),
+            backgroundColor: ['#f9ca24', '#00b894', '#1a1a2e'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+</script>
+{% endblock %}

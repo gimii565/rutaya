@@ -1,0 +1,68 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Calificar Viaje{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/passenger.css') }}">
+<style>
+.stars { display: flex; flex-direction: row-reverse; justify-content: center; gap: 8px; }
+.stars input { display: none; }
+.stars label { font-size: 48px; cursor: pointer; color: #dfe6e9; transition: color 0.2s; }
+.stars input:checked ~ label,
+.stars label:hover,
+.stars label:hover ~ label { color: #f9ca24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="rutaya-card text-center">
+            <span style="font-size:56px;">⭐</span>
+            <h4 class="fw-bold mt-2" style="color:#1a1a2e;">Califica tu viaje</h4>
+            <p class="text-muted">¿Cómo fue tu experiencia con {{ trip.driver.name }}?</p>
+
+            <div class="rutaya-card mb-3" style="background:#f8f9ff; padding:1rem;">
+                <div class="row">
+                    <div class="col-6 text-start">
+                        <p class="mb-1" style="font-size:13px;"><strong>Origen:</strong> {{ trip.origin }}</p>
+                        <p class="mb-0" style="font-size:13px;"><strong>Destino:</strong> {{ trip.destination }}</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <p class="mb-1" style="font-size:13px;"><strong>Conductor:</strong> {{ trip.driver.name }}</p>
+                        <p class="mb-0" style="font-size:13px;"><strong>Tarifa:</strong> Bs. {{ trip.fare }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="stars mb-3">
+                    <input type="radio" name="rating" id="star5" value="5">
+                    <label for="star5">★</label>
+                    <input type="radio" name="rating" id="star4" value="4">
+                    <label for="star4">★</label>
+                    <input type="radio" name="rating" id="star3" value="3">
+                    <label for="star3">★</label>
+                    <input type="radio" name="rating" id="star2" value="2">
+                    <label for="star2">★</label>
+                    <input type="radio" name="rating" id="star1" value="1">
+                    <label for="star1">★</label>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label class="form-label">Comentario (opcional)</label>
+                    <textarea name="comment" class="form-control" rows="3"
+                        placeholder="¿Cómo fue tu experiencia?"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-rutaya-primary">
+                    <i class="ti ti-star"></i> Enviar calificación
+                </button>
+                <a href="{{ url_for('passenger.dashboard') }}"
+                   class="btn btn-outline-secondary mt-2 w-100" style="border-radius:10px;">
+                    Omitir
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

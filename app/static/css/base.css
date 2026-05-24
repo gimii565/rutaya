@@ -1,0 +1,539 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f6fa;
+    color: #2d3436;
+}
+
+/* NAVBAR */
+.rutaya-navbar {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 12px 0;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+.rutaya-navbar .navbar-brand {
+    color: #f9ca24 !important;
+    font-size: 22px;
+    letter-spacing: 1px;
+}
+
+.rutaya-navbar .navbar-nav {
+    gap: 4px;
+    align-items: center;
+}
+
+.rutaya-navbar .navbar-brand {
+    color: #f9ca24 !important;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-right: 1rem;
+}
+
+.rutaya-navbar .nav-link {
+    color: rgba(255,255,255,0.85) !important;
+    transition: color 0.2s;
+    padding: 8px 12px !important;
+    margin: 0 2px;
+}
+
+.rutaya-navbar .nav-link:hover {
+    color: #f9ca24 !important;
+}
+
+/* CARDS */
+.rutaya-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* BUTTONS */
+.btn-rutaya-primary {
+    background: linear-gradient(135deg, #f9ca24, #f0932b);
+    border: none;
+    color: #1a1a2e;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 10px;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.btn-rutaya-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249,202,36,0.4);
+    color: #1a1a2e;
+}
+
+.btn-rutaya-success {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.btn-rutaya-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,184,148,0.4);
+    color: #fff;
+}
+
+.btn-rutaya-danger {
+    background: linear-gradient(135deg, #d63031, #e17055);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.btn-rutaya-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(214,48,49,0.4);
+    color: #fff;
+}
+
+/* FORM INPUTS */
+.form-control {
+    border-radius: 10px;
+    border: 1.5px solid #dfe6e9;
+    padding: 10px 16px;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: #f9ca24;
+    box-shadow: 0 0 0 3px rgba(249,202,36,0.2);
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #636e72;
+    margin-bottom: 4px;
+}
+
+/* BADGES */
+.badge-pending {
+    background: #fdcb6e;
+    color: #2d3436;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-accepted {
+    background: #74b9ff;
+    color: #2d3436;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-in-progress {
+    background: #a29bfe;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-completed {
+    background: #55efc4;
+    color: #2d3436;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-cancelled {
+    background: #ff7675;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* STAT CARDS */
+.stat-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.stat-card .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3436;
+}
+
+.stat-card .stat-label {
+    font-size: 13px;
+    color: #636e72;
+    font-weight: 500;
+}
+
+/* LOGIN PAGE */
+.login-wrapper {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-box {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 460px;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-logo span {
+    font-size: 48px;
+}
+
+.login-logo h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-top: 8px;
+}
+
+.login-logo p {
+    color: #636e72;
+    font-size: 14px;
+}
+
+/* ALERTS */
+.alert {
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+}
+
+/* TABLES */
+.rutaya-table {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+}
+
+.rutaya-table thead {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    color: #fff;
+}
+
+.rutaya-table thead th {
+    padding: 14px 16px;
+    font-weight: 500;
+    font-size: 14px;
+    border: none;
+}
+
+.rutaya-table tbody td {
+    padding: 12px 16px;
+    font-size: 14px;
+    vertical-align: middle;
+    border-color: #f0f0f0;
+}
+
+.rutaya-table tbody tr:hover {
+    background: #f8f9ff;
+}
+/* ===== RESPONSIVE MÓVIL ===== */
+@media (max-width: 768px) {
+
+    /* Navbar */
+    .rutaya-navbar .container {
+        padding: 0 12px;
+    }
+
+    .rutaya-navbar .navbar-brand {
+        font-size: 18px;
+    }
+
+    .rutaya-navbar .navbar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+
+    .rutaya-navbar .nav-link {
+        font-size: 12px;
+        padding: 4px 6px !important;
+    }
+
+    /* Contenedor principal */
+    .container {
+        padding: 0 12px;
+    }
+
+    /* Cards */
+    .rutaya-card {
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    /* Stat cards en grid 3 columnas en móvil */
+    .stat-card {
+        padding: 0.75rem 0.5rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .stat-card .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 4px;
+    }
+
+    .stat-card .stat-label {
+        font-size: 11px;
+    }
+
+    /* Forzar 3 columnas en móvil para stats */
+    .row .col-md-4,
+    .row .col-md-3,
+    .row .col-md-2 {
+        flex: 0 0 33.333%;
+        max-width: 33.333%;
+    }
+
+    /* Login box */
+    .login-wrapper {
+        min-height: 100vh;
+        padding: 1rem 0;
+        align-items: flex-start;
+    }
+
+    .login-box {
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin: 0 4px;
+    }
+
+    .login-logo span {
+        font-size: 36px;
+    }
+
+    .login-logo h2 {
+        font-size: 22px;
+    }
+
+    /* Botones */
+    .btn-rutaya-primary,
+    .btn-rutaya-success,
+    .btn-rutaya-danger,
+    .btn-rutaya-amber {
+        padding: 12px 20px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+
+    /* Tablas responsive */
+    .rutaya-table {
+        border-radius: 12px;
+        overflow-x: auto;
+    }
+
+    .rutaya-table table {
+        min-width: 500px;
+    }
+
+    .rutaya-table thead th {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .rutaya-table tbody td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    /* Mapa */
+    #map {
+        height: 280px !important;
+    }
+
+    /* Formularios */
+    .form-control {
+        font-size: 16px !important;
+        padding: 10px 14px;
+    }
+
+    .form-label {
+        font-size: 13px;
+    }
+
+    /* Badges */
+    .badge-pending,
+    .badge-accepted,
+    .badge-in-progress,
+    .badge-completed,
+    .badge-cancelled {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    /* KPI cards admin */
+    .col-md-2 {
+        margin-bottom: 8px;
+    }
+
+    /* Chat */
+    .chat-container {
+        height: 320px !important;
+    }
+
+    .message-bubble {
+        font-size: 13px !important;
+    }
+
+    /* Perfil */
+    .profile-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .profile-avatar,
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        font-size: 28px;
+    }
+
+    /* Fare box */
+    .fare-box {
+        padding: 0.75rem;
+    }
+
+    /* Solicitudes taxista */
+    .trip-request-card {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    /* Row ajuste */
+    .row {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    .col, [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    /* Ocultar texto largo en navbar en móvil muy pequeño */
+    @media (max-width: 400px) {
+        .rutaya-navbar .nav-link span {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    /* Navbar compacta */
+    .rutaya-navbar {
+        padding: 8px 0;
+    }
+
+    .rutaya-navbar .nav-link {
+        font-size: 11px;
+        padding: 3px 5px !important;
+    }
+
+    /* Titulo bienvenida */
+    h4.fw-bold {
+        font-size: 18px;
+    }
+
+    h5.fw-bold {
+        font-size: 15px;
+    }
+
+    /* Stat cards 2x2 */
+    .stat-card .stat-value {
+        font-size: 1.3rem;
+    }
+
+    /* Mapa más pequeño en móvil */
+    #map {
+        height: 240px !important;
+    }
+
+    /* Botón solicitar moto full width */
+    .btn-rutaya-primary {
+        width: 100% !important;
+        display: block !important;
+    }
+
+    /* Cards sin padding lateral extra */
+    .rutaya-card {
+        padding: 0.875rem;
+    }
+
+    /* Login más compacto */
+    .login-box {
+        padding: 1.25rem;
+    }
+    /* Stats 3 columnas compactas */
+    .stat-card {
+        padding: 0.6rem 0.4rem;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1rem;
+    }
+
+    .stat-card .stat-icon {
+        font-size: 1.3rem;
+    }
+
+    .stat-card .stat-label {
+        font-size: 10px;
+    }
+}

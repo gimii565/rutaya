@@ -1,0 +1,191 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Panel Administrador{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-settings"></i> Panel de Administración
+        </h4>
+        <p class="text-muted">Control total del sistema RutaYa Motos</p>
+    </div>
+    <div class="col-auto d-flex gap-2">
+        <a href="{{ url_for('admin.users') }}" class="btn btn-rutaya-amber" style="width:auto;">
+            <i class="ti ti-users"></i> Usuarios
+        </a>
+        <a href="{{ url_for('admin.trips') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-car"></i> Viajes
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-2 col-sm-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ total_passengers }}</div>
+            <div class="stat-label">Pasajeros</div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon">🚗</div>
+            <div class="stat-value">{{ total_drivers }}</div>
+            <div class="stat-label">Taxistas</div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon">🚖</div>
+            <div class="stat-value">{{ total_trips }}</div>
+            <div class="stat-label">Total viajes</div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ active_trips }}</div>
+            <div class="stat-label">Viajes activos</div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">{{ completed_trips }}</div>
+            <div class="stat-label">Completados</div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">Bs. {{ total_earnings|round(2) }}</div>
+            <div class="stat-label">Total ingresos</div>
+        </div>
+    </div>
+</div>
+
+{% if pending_drivers %}
+<div class="rutaya-card mb-4" style="border-left: 5px solid #f9ca24;">
+    <h5 class="fw-bold mb-3">
+        <i class="ti ti-clock"></i> Taxistas pendientes de aprobación
+        <span class="badge bg-warning text-dark ms-2">{{ pending_drivers|length }}</span>
+    </h5>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead style="background:#f8f9ff;">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Vehículo</th>
+                    <th>Placa</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for driver in pending_drivers %}
+                <tr>
+                    <td><strong>{{ driver.name }}</strong></td>
+                    <td>{{ driver.email }}</td>
+                    <td>{{ driver.phone }}</td>
+                    <td>
+                        {% if driver.vehicle %}
+                            {{ driver.vehicle.brand }} {{ driver.vehicle.model }} {{ driver.vehicle.year }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if driver.vehicle %}
+                            {{ driver.vehicle.plate }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.approve_driver', driver_id=driver.id) }}"
+                           class="btn btn-rutaya-success btn-sm" style="width:auto; padding:5px 14px;">
+                            <i class="ti ti-check"></i> Aprobar
+                        </a>
+                        <a href="{{ url_for('admin.reject_driver', driver_id=driver.id) }}"
+                           class="btn btn-rutaya-danger btn-sm ms-1" style="width:auto; padding:5px 14px;"
+                           onclick="return confirm('¿Seguro que deseas rechazar a este taxista?')">
+                            <i class="ti ti-x"></i> Rechazar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<h5 class="fw-bold mb-3" style="color:#1a1a2e;">
+    <i class="ti ti-list"></i> Viajes recientes
+</h5>
+
+{% if recent_trips %}
+<div class="rutaya-table">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Pasajero</th>
+                <th>Conductor</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Estado</th>
+                <th>Tarifa</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trip in recent_trips %}
+            <tr>
+                <td>{{ trip.id }}</td>
+                <td>{{ trip.passenger.name }}</td>
+                <td>
+                    {% if trip.driver %}
+                        {{ trip.driver.name }}
+                    {% else %}
+                        <span class="text-muted">Sin asignar</span>
+                    {% endif %}
+                </td>
+                <td>{{ trip.origin }}</td>
+                <td>{{ trip.destination }}</td>
+                <td>
+                    {% if trip.status == 'pending' %}
+                        <span class="badge-pending">Pendiente</span>
+                    {% elif trip.status == 'accepted' %}
+                        <span class="badge-accepted">Aceptado</span>
+                    {% elif trip.status == 'in_progress' %}
+                        <span class="badge-in-progress">En camino</span>
+                    {% elif trip.status == 'completed' %}
+                        <span class="badge-completed">Completado</span>
+                    {% elif trip.status == 'cancelled' %}
+                        <span class="badge-cancelled">Cancelado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if trip.fare %}
+                        Bs. {{ trip.fare }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>{{ trip.requested_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="rutaya-card text-center py-4">
+    <p class="text-muted mb-0">No hay viajes registrados aún.</p>
+</div>
+{% endif %}
+{% endblock %}

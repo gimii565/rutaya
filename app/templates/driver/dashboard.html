@@ -1,0 +1,250 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Panel Taxista{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/driver.css') }}">
+<style>
+    #map { height: 350px; width: 100%; border-radius: 12px; }
+    .map-wrapper { border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
+    .trip-request-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1rem; border-top: 4px solid #f9ca24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<div class="row mb-3">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            🏍️ Bienvenido, {{ current_user.name }}
+        </h4>
+        <p class="text-muted">Panel del motociclista</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('driver.trips') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-history"></i> Mis viajes
+        </a>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">{{ total_trips }}</div>
+            <div class="stat-label">Viajes completados</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">Bs. {{ total_earnings|round(2) }}</div>
+            <div class="stat-label">Total ganado</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-value">{{ pending_trips|length }}</div>
+            <div class="stat-label">Solicitudes pendientes</div>
+        </div>
+    </div>
+</div>
+
+<div class="map-wrapper rutaya-card" style="padding:0;">
+    <div id="map"></div>
+</div>
+
+{% if active_trip %}
+<div class="rutaya-card mb-3" style="border-left: 5px solid #00b894;">
+    <h5 class="fw-bold mb-3"><i class="ti ti-route"></i> Viaje en curso</h5>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="mb-1"><strong><i class="ti ti-map-pin"></i> Origen:</strong> {{ active_trip.origin }}</p>
+            <p class="mb-1"><strong><i class="ti ti-flag"></i> Destino:</strong> {{ active_trip.destination }}</p>
+            <p class="mb-1"><strong><i class="ti ti-user"></i> Pasajero:</strong> {{ active_trip.passenger.name }}</p>
+            <p class="mb-1"><strong><i class="ti ti-phone"></i> Teléfono:</strong> {{ active_trip.passenger.phone }}</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <p class="mb-3">
+                Estado:
+                {% if active_trip.status == 'accepted' %}
+                    <span class="badge-accepted">✅ Aceptado</span>
+                {% elif active_trip.status == 'in_progress' %}
+                    <span class="badge-in-progress">🏍️ En camino</span>
+                {% endif %}
+            </p>
+            {% if active_trip.status == 'accepted' %}
+                <a href="{{ url_for('driver.start_trip', trip_id=active_trip.id) }}"
+                   class="btn btn-rutaya-success" style="width:auto;">
+                    <i class="ti ti-player-play"></i> Iniciar viaje
+                </a>
+            {% elif active_trip.status == 'in_progress' %}
+                <a href="{{ url_for('driver.complete_trip', trip_id=active_trip.id) }}"
+                   class="btn btn-rutaya-primary" style="width:auto;">
+                    <i class="ti ti-check"></i> Completar viaje
+                </a>
+            {% endif %}
+            {% if active_trip.status in ['accepted', 'in_progress'] %}
+                <a href="{{ url_for('driver.chat', trip_id=active_trip.id) }}"
+                   class="btn btn-outline-secondary mt-2" style="width:auto;">
+                    <i class="ti ti-message"></i> Chat con pasajero
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<h5 class="fw-bold mb-3" style="color:#1a1a2e;">
+    <i class="ti ti-bell"></i> Solicitudes disponibles
+</h5>
+
+{% if pending_trips %}
+    <div class="row">
+        {% for trip in pending_trips %}
+        <div class="col-md-6 mb-3">
+            <div class="trip-request-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="fw-bold mb-0">Viaje #{{ trip.id }}</h6>
+                    <span class="badge-pending">Nueva solicitud</span>
+                </div>
+                <p class="mb-1 text-muted" style="font-size:13px;">
+                    <i class="ti ti-map-pin"></i> <strong>Origen:</strong> {{ trip.origin }}
+                </p>
+                <p class="mb-1 text-muted" style="font-size:13px;">
+                    <i class="ti ti-flag"></i> <strong>Destino:</strong> {{ trip.destination }}
+                </p>
+                <p class="mb-3 text-muted" style="font-size:13px;">
+                    <i class="ti ti-user"></i> <strong>Pasajero:</strong> {{ trip.passenger.name }}
+                </p>
+                {% if not active_trip %}
+                <a href="{{ url_for('driver.accept_trip', trip_id=trip.id) }}"
+                   class="btn btn-rutaya-success" style="width:auto; padding:8px 20px;">
+                    <i class="ti ti-check"></i> Aceptar viaje
+                </a>
+                {% else %}
+                <button class="btn btn-outline-secondary w-100" disabled>
+                    Ya tienes un viaje activo
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+<div class="rutaya-card text-center py-4">
+    <span style="font-size:48px;">🏍️</span>
+    <h5 class="mt-2 fw-bold">No hay solicitudes disponibles</h5>
+<p class="text-muted">Cuando un pasajero solicite una moto aparecerá aquí</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+let map, driverMarker, passengerMarker, directionsService, directionsRenderer;
+const TRIP_ID = {{ active_trip.id if active_trip else 'null' }};
+const TRIP_STATUS = "{{ active_trip.status if active_trip else '' }}";
+const HAS_ACTIVE_TRIP = {{ 'true' if active_trip else 'false' }};
+
+function initMap() {
+    const trinidad = { lat: -14.8333, lng: -64.9000 };
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 14,
+        center: trinidad,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.TOP_RIGHT,
+            mapTypeIds: ['roadmap', 'satellite', 'hybrid']
+        },
+        streetViewControl: false,
+        fullscreenControl: true
+    });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: false,
+        polylineOptions: { strokeColor: '#00b894', strokeWeight: 5 }
+    });
+
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+            const latLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            fetch('/api/location/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ latitude: pos.coords.latitude, longitude: pos.coords.longitude })
+            });
+            if (!driverMarker) {
+                driverMarker = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                    title: 'Tu ubicación',
+                    icon: { url: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png' }
+                });
+                map.setCenter(latLng);
+                map.setZoom(15);
+            } else {
+                driverMarker.setPosition(latLng);
+            }
+            if (TRIP_ID && HAS_ACTIVE_TRIP) {
+                showRouteToPassenger(latLng);
+            }
+        }, err => console.log(err), { enableHighAccuracy: true, maximumAge: 5000 });
+    }
+
+    if (TRIP_ID && HAS_ACTIVE_TRIP) {
+        trackPassenger();
+    }
+}
+
+function showRouteToPassenger(driverLatLng) {
+    fetch(`/api/location/passenger/${TRIP_ID}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.found) {
+                const destination = TRIP_STATUS === 'in_progress'
+                    ? data.destination
+                    : new google.maps.LatLng(data.latitude, data.longitude);
+                directionsService.route({
+                    origin: driverLatLng,
+                    destination: destination,
+                    travelMode: google.maps.TravelMode.DRIVING
+                }, (result, status) => {
+                    if (status === 'OK') {
+                        directionsRenderer.setDirections(result);
+                    }
+                });
+            }
+        });
+}
+
+function trackPassenger() {
+    setInterval(() => {
+        fetch(`/api/location/passenger/${TRIP_ID}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.found) {
+                    const latLng = new google.maps.LatLng(data.latitude, data.longitude);
+                    if (!passengerMarker) {
+                        passengerMarker = new google.maps.Marker({
+                            position: latLng,
+                            map: map,
+                            title: data.name,
+                            icon: { url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
+                        });
+                    } else {
+                        passengerMarker.setPosition(latLng);
+                    }
+                }
+            });
+    }, 5000);
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initMap" async defer></script>
+{% endblock %}

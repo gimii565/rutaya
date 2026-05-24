@@ -1,0 +1,173 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Configurar Tarifas{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+.fare-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); border-radius: 16px; padding: 2rem; color: #fff; margin-bottom: 1.5rem; }
+.fare-preview { background: #f8f9ff; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; }
+.preview-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.preview-row:last-child { border-bottom: none; font-weight: 700; color: #f9ca24; font-size: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-cash"></i> Configuración de Tarifas
+        </h4>
+        <p class="text-muted">Define los precios del sistema RutaYa</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- Tarifa actual -->
+<div class="fare-card">
+    <h5 class="fw-bold mb-3" style="color:#f9ca24;">
+        <i class="ti ti-info-circle"></i> Tarifa actual del sistema
+    </h5>
+    <div class="row text-center">
+        <div class="col-3">
+            <div style="font-size:12px; opacity:0.75;">Tarifa base</div>
+            <div style="font-size:24px; font-weight:700; color:#f9ca24;">Bs. {{ fare.base_fare }}</div>
+            <div style="font-size:11px; opacity:0.6;">primeros {{ fare.min_km }} km</div>
+        </div>
+        <div class="col-3">
+            <div style="font-size:12px; opacity:0.75;">Por km adicional</div>
+            <div style="font-size:24px; font-weight:700; color:#f9ca24;">Bs. {{ fare.price_per_km }}</div>
+            <div style="font-size:11px; opacity:0.6;">después del mínimo</div>
+        </div>
+        <div class="col-3">
+            <div style="font-size:12px; opacity:0.75;">Km mínimos</div>
+            <div style="font-size:24px; font-weight:700; color:#f9ca24;">{{ fare.min_km }} km</div>
+            <div style="font-size:11px; opacity:0.6;">incluidos en base</div>
+        </div>
+        <div class="col-3">
+            <div style="font-size:12px; opacity:0.75;">Extra por 0.5km</div>
+            <div style="font-size:24px; font-weight:700; color:#f9ca24;">Bs. {{ fare.extra_per_half_km }}</div>
+            <div style="font-size:11px; opacity:0.6;">fracción de km</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulario -->
+    <div class="col-md-6">
+        <div class="rutaya-card">
+            <h5 class="fw-bold mb-4" style="color:#1a1a2e;">
+                <i class="ti ti-edit"></i> Modificar tarifas
+            </h5>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label">Tarifa base (Bs.)</label>
+                    <input type="number" name="base_fare" class="form-control"
+                        value="{{ fare.base_fare }}" step="0.5" min="1" required
+                        oninput="updatePreview()">
+                    <small class="text-muted">Precio mínimo por cualquier viaje</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kilómetros mínimos incluidos</label>
+                    <input type="number" name="min_km" class="form-control"
+                        value="{{ fare.min_km }}" step="0.5" min="0.5" required
+                        oninput="updatePreview()">
+                    <small class="text-muted">Km incluidos en la tarifa base</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Precio por km adicional (Bs.)</label>
+                    <input type="number" name="price_per_km" class="form-control"
+                        value="{{ fare.price_per_km }}" step="0.5" min="0.5" required
+                        oninput="updatePreview()">
+                    <small class="text-muted">Cobro por cada km extra</small>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Extra por cada 0.5 km (Bs.)</label>
+                    <input type="number" name="extra_per_half_km" class="form-control"
+                        value="{{ fare.extra_per_half_km }}" step="0.5" min="0.5" required
+                        oninput="updatePreview()">
+                    <small class="text-muted">Cobro por fracciones de km</small>
+                </div>
+
+                <button type="submit" class="btn btn-rutaya-amber w-100">
+                    <i class="ti ti-device-floppy"></i> Guardar cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vista previa -->
+    <div class="col-md-6">
+        <div class="rutaya-card">
+            <h5 class="fw-bold mb-4" style="color:#1a1a2e;">
+                <i class="ti ti-eye"></i> Vista previa de tarifas
+            </h5>
+            <div class="fare-preview">
+                <div class="preview-row">
+                    <span>Viaje de 1 km</span>
+                    <span id="p1">Bs. —</span>
+                </div>
+                <div class="preview-row">
+                    <span>Viaje de 2 km</span>
+                    <span id="p2">Bs. —</span>
+                </div>
+                <div class="preview-row">
+                    <span>Viaje de 3 km</span>
+                    <span id="p3">Bs. —</span>
+                </div>
+                <div class="preview-row">
+                    <span>Viaje de 3.5 km</span>
+                    <span id="p35">Bs. —</span>
+                </div>
+                <div class="preview-row">
+                    <span>Viaje de 5 km</span>
+                    <span id="p5">Bs. —</span>
+                </div>
+                <div class="preview-row">
+                    <span>Viaje de 8 km</span>
+                    <span id="p8">Bs. —</span>
+                </div>
+                <div class="preview-row">
+                    <span>Viaje de 10 km</span>
+                    <span id="p10">Bs. —</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function calculateFare(distKm, baseFare, minKm, pricePerKm, extraPerHalfKm) {
+    if (distKm <= minKm) return baseFare;
+    const extraKm = distKm - minKm;
+    const extraHalves = Math.ceil(extraKm / 0.5);
+    return Math.round((baseFare + (extraHalves * extraPerHalfKm)) * 100) / 100;
+}
+
+function updatePreview() {
+    const baseFare = parseFloat(document.querySelector('[name=base_fare]').value) || 6;
+    const minKm = parseFloat(document.querySelector('[name=min_km]').value) || 3;
+    const pricePerKm = parseFloat(document.querySelector('[name=price_per_km]').value) || 2;
+    const extraPerHalfKm = parseFloat(document.querySelector('[name=extra_per_half_km]').value) || 1;
+
+    const distances = [1, 2, 3, 3.5, 5, 8, 10];
+    const ids = ['p1', 'p2', 'p3', 'p35', 'p5', 'p8', 'p10'];
+
+    distances.forEach((d, i) => {
+        const fare = calculateFare(d, baseFare, minKm, pricePerKm, extraPerHalfKm);
+        document.getElementById(ids[i]).textContent = `Bs. ${fare}`;
+    });
+}
+
+updatePreview();
+</script>
+{% endblock %}

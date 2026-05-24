@@ -1,0 +1,117 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Gestión de Viajes{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-car"></i> Gestión de Viajes
+        </h4>
+        <p class="text-muted">Todos los viajes registrados en el sistema</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">🚖</div>
+            <div class="stat-value">{{ trips|length }}</div>
+            <div class="stat-label">Total viajes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ trips|selectattr('status','in',['pending','accepted','in_progress'])|list|length }}</div>
+            <div class="stat-label">Activos</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">{{ trips|selectattr('status','equalto','completed')|list|length }}</div>
+            <div class="stat-label">Completados</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">
+                Bs. {{ trips|selectattr('status','equalto','completed')|sum(attribute='fare')|round(2) }}
+            </div>
+            <div class="stat-label">Total ingresos</div>
+        </div>
+    </div>
+</div>
+
+{% if trips %}
+<div class="rutaya-table">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Pasajero</th>
+                <th>Conductor</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Estado</th>
+                <th>Tarifa</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trip in trips %}
+            <tr>
+                <td>{{ trip.id }}</td>
+                <td>{{ trip.passenger.name }}</td>
+                <td>
+                    {% if trip.driver %}
+                        {{ trip.driver.name }}
+                    {% else %}
+                        <span class="text-muted">Sin asignar</span>
+                    {% endif %}
+                </td>
+                <td>{{ trip.origin }}</td>
+                <td>{{ trip.destination }}</td>
+                <td>
+                    {% if trip.status == 'pending' %}
+                        <span class="badge-pending">Pendiente</span>
+                    {% elif trip.status == 'accepted' %}
+                        <span class="badge-accepted">Aceptado</span>
+                    {% elif trip.status == 'in_progress' %}
+                        <span class="badge-in-progress">En camino</span>
+                    {% elif trip.status == 'completed' %}
+                        <span class="badge-completed">Completado</span>
+                    {% elif trip.status == 'cancelled' %}
+                        <span class="badge-cancelled">Cancelado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if trip.fare %}
+                        Bs. {{ trip.fare }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>{{ trip.requested_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="rutaya-card text-center py-5">
+    <span style="font-size:56px;">🚖</span>
+    <h5 class="mt-3 fw-bold">No hay viajes registrados</h5>
+    <p class="text-muted">Los viajes aparecerán aquí cuando los pasajeros los soliciten</p>
+</div>
+{% endif %}
+{% endblock %}

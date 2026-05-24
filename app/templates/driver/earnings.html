@@ -1,0 +1,124 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Mis Ganancias{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/driver.css') }}">
+<style>
+.earnings-card { background: linear-gradient(135deg, #00b894, #00cec9); border-radius: 16px; padding: 1.5rem; color: #fff; margin-bottom: 1.5rem; }
+.period-btn { border-radius: 20px; padding: 6px 18px; font-size: 13px; font-weight: 600; border: 2px solid #00b894; color: #00b894; background: transparent; cursor: pointer; transition: all 0.2s; }
+.period-btn.active { background: #00b894; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-cash"></i> Mis Ganancias
+        </h4>
+        <p class="text-muted">Historial detallado de ingresos</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('driver.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- Resumen general -->
+<div class="earnings-card">
+    <div class="row text-center">
+        <div class="col-4">
+            <div style="font-size:13px; opacity:0.85;">Total ganado</div>
+            <div style="font-size:28px; font-weight:700;">Bs. {{ total_earnings|round(2) }}</div>
+        </div>
+        <div class="col-4">
+            <div style="font-size:13px; opacity:0.85;">Viajes completados</div>
+            <div style="font-size:28px; font-weight:700;">{{ total_trips }}</div>
+        </div>
+        <div class="col-4">
+            <div style="font-size:13px; opacity:0.85;">Promedio por viaje</div>
+            <div style="font-size:28px; font-weight:700;">
+                Bs. {{ (total_earnings / total_trips)|round(2) if total_trips > 0 else 0 }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ganancias por período -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value">Bs. {{ today_earnings|round(2) }}</div>
+            <div class="stat-label">Hoy</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon">📆</div>
+            <div class="stat-value">Bs. {{ week_earnings|round(2) }}</div>
+            <div class="stat-label">Esta semana</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon">🗓️</div>
+            <div class="stat-value">Bs. {{ month_earnings|round(2) }}</div>
+            <div class="stat-label">Este mes</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de viajes completados -->
+<h5 class="fw-bold mb-3" style="color:#1a1a2e;">
+    <i class="ti ti-list"></i> Detalle de viajes
+</h5>
+
+{% if trips %}
+<div class="rutaya-table">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Pasajero</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Tarifa</th>
+                <th>Calificación</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trip in trips %}
+            <tr>
+                <td>{{ trip.id }}</td>
+                <td>{{ trip.passenger.name }}</td>
+                <td>{{ trip.origin }}</td>
+                <td>{{ trip.destination }}</td>
+                <td><strong>Bs. {{ trip.fare }}</strong></td>
+                <td>
+                    {% if trip.rating %}
+                        <span style="color:#f9ca24;">
+                            {% for i in range(trip.rating) %}★{% endfor %}
+                        </span>
+                        {% if trip.comment %}
+                            <br><small class="text-muted">{{ trip.comment }}</small>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">Sin calificar</span>
+                    {% endif %}
+                </td>
+                <td>{{ trip.completed_at.strftime('%d/%m/%Y %H:%M') if trip.completed_at else trip.requested_at.strftime('%d/%m/%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="rutaya-card text-center py-5">
+    <span style="font-size:56px;">💰</span>
+    <h5 class="mt-3 fw-bold">No tienes ganancias registradas</h5>
+    <p class="text-muted">Completa viajes para ver tu historial de ganancias</p>
+</div>
+{% endif %}
+{% endblock %}

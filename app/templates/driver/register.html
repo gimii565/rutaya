@@ -1,0 +1,185 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Registro Mototaxista{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/driver.css') }}">
+<style>
+.section-header { background: linear-gradient(135deg, #00b894, #00cec9); border-radius: 10px; padding: 10px 16px; color: #fff; font-weight: 600; font-size: 14px; margin-bottom: 1rem; }
+.required-badge { background: #ff7675; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="login-box" style="max-width:100%;">
+            <div class="login-logo">
+                <span>🏍️</span>
+                <h2>Registro de Mototaxista</h2>
+                <p>Solo mototaxistas con carnet válido pueden registrarse</p>
+            </div>
+
+            <div class="alert alert-warning mb-4" style="font-size:13px; border-radius:10px;">
+                <i class="ti ti-shield-check"></i>
+                <strong>Verificación obligatoria:</strong> Tu registro será revisado por el administrador.
+                Solo mototaxistas pertenecientes a una asociación reconocida serán aprobados.
+            </div>
+
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Datos personales -->
+                <div class="section-header">
+                    <i class="ti ti-user"></i> Datos personales
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control", placeholder="Tus nombres") }}
+                        {% for error in form.name.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ form.paternal_lastname.label(class="form-label") }}
+                        {{ form.paternal_lastname(class="form-control", placeholder="Apellido paterno") }}
+                        {% for error in form.paternal_lastname.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ form.maternal_lastname.label(class="form-label") }}
+                        {{ form.maternal_lastname(class="form-control", placeholder="Apellido materno") }}
+                        {% for error in form.maternal_lastname.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control", placeholder="71234567") }}
+                        {% for error in form.phone.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control", placeholder="correo@ejemplo.com") }}
+                        {% for error in form.email.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control", placeholder="••••••••") }}
+                        {% for error in form.password.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+                        {% for error in form.confirm_password.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Datos de asociación -->
+                <div class="section-header">
+                    <i class="ti ti-building"></i> Datos de asociación y carnet
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.association_name.label(class="form-label") }}
+                        {{ form.association_name(class="form-control") }}
+                        {% for error in form.association_name.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.mototaxi_card.label(class="form-label") }}
+                        {{ form.mototaxi_card(class="form-control", placeholder="Ej: MT-001234") }}
+                        <small class="text-muted">Número en tu carnet de mototaxista</small>
+                        {% for error in form.mototaxi_card.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Datos de la moto -->
+                <div class="section-header">
+                    🏍️ Datos de tu moto
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {{ form.brand.label(class="form-label") }}
+                        {{ form.brand(class="form-control", placeholder="Ej: Honda, Yamaha") }}
+                        {% for error in form.brand.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ form.model.label(class="form-label") }}
+                        {{ form.model(class="form-control", placeholder="Ej: Wave, Fazer") }}
+                        {% for error in form.model.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ form.year.label(class="form-label") }}
+                        {{ form.year(class="form-control", placeholder="2020") }}
+                        {% for error in form.year.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.plate.label(class="form-label") }}
+                        {{ form.plate(class="form-control", placeholder="Ej: 1234BNI") }}
+                        {% for error in form.plate.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.color.label(class="form-label") }}
+                        {{ form.color(class="form-control", placeholder="Ej: Rojo, Negro") }}
+                        {% for error in form.color.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-2" style="font-size:13px; border-radius:10px;">
+                    <i class="ti ti-info-circle"></i>
+                    Una vez registrado tu cuenta será <strong>revisada y verificada</strong> por el administrador
+                    antes de poder operar. Recibirás confirmación por este sistema.
+                </div>
+
+                <button type="submit" class="btn btn-rutaya-success w-100 mt-2">
+                    🏍️ Registrarme como mototaxista
+                </button>
+            </form>
+
+            <hr class="my-4">
+            <p class="text-center text-muted" style="font-size:14px;">
+                ¿Ya tienes cuenta?
+                <a href="{{ url_for('driver.login') }}" class="fw-bold" style="color:#00b894;">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Iniciar Sesión Taxista{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/driver.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-box">
+        <div class="login-logo">
+            <span>🏍️</span>
+            <h2>RutaYa</h2>
+            <p>Panel del Motociclista</p>
+        </div>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="correo@ejemplo.com") }}
+                {% for error in form.email.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="••••••••") }}
+                {% for error in form.password.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-rutaya-success w-100">
+                <i class="ti ti-login"></i> Ingresar
+            </button>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center text-muted" style="font-size:14px;">
+            ¿No tienes cuenta?
+            <a href="{{ url_for('driver.register') }}" class="fw-bold" style="color:#00b894;">Regístrate aquí</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

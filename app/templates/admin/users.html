@@ -1,0 +1,175 @@
+{% extends 'shared/base.html' %}
+{% block title %}RutaYa - Gestión de Usuarios{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="fw-bold" style="color:#1a1a2e;">
+            <i class="ti ti-users"></i> Gestión de Usuarios
+        </h4>
+        <p class="text-muted">Administra pasajeros y taxistas del sistema</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- Taxistas -->
+<h5 class="fw-bold mb-3" style="color:#1a1a2e;">
+    <i class="ti ti-car"></i> Taxistas
+    <span class="badge bg-secondary ms-2">{{ drivers|length }}</span>
+</h5>
+
+{% if drivers %}
+<div class="rutaya-table mb-5">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Asociación</th>
+                <th>Carnet</th>
+                <th>Moto</th>
+                <th>Placa</th>
+                <th>Estado</th><th>Vehículo</th>
+                <th>Placa</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td>{{ driver.id }}</td>
+                <td><strong>{{ driver.name }}</strong></td>
+                <td>{{ driver.email }}</td>
+                <td>{{ driver.phone }}</td>
+                <td>
+                    {% if driver.vehicle %}
+                        <span style="font-size:12px;">{{ driver.vehicle.association_name or '—' }}</span>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if driver.vehicle %}
+                        <span style="font-size:12px;">{{ driver.vehicle.mototaxi_card or '—' }}</span>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if driver.vehicle %}
+                        {{ driver.vehicle.brand }} {{ driver.vehicle.model }}
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if driver.vehicle %}
+                        {{ driver.vehicle.plate }}
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if driver.is_active %}
+                        <span class="badge-completed">Activo</span>
+                    {% else %}
+                        <span class="badge-pending">Pendiente</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not driver.is_active %}
+                        <a href="{{ url_for('admin.approve_driver', driver_id=driver.id) }}"
+                           class="btn btn-rutaya-success btn-sm" style="width:auto; padding:5px 14px;">
+                            <i class="ti ti-check"></i> Aprobar
+                        </a>
+                        <a href="{{ url_for('admin.reject_driver', driver_id=driver.id) }}"
+                           class="btn btn-rutaya-danger btn-sm ms-1" style="width:auto; padding:5px 14px;"
+                           onclick="return confirm('¿Seguro que deseas eliminar a este taxista?')">
+                            <i class="ti ti-x"></i> Rechazar
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('admin.deactivate_user', user_id=driver.id) }}"
+                           class="btn btn-outline-danger btn-sm" style="width:auto; padding:5px 14px;"
+                           onclick="return confirm('¿Seguro que deseas desactivar a este taxista?')">
+                            <i class="ti ti-ban"></i> Desactivar
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="rutaya-card text-center py-4 mb-5">
+    <p class="text-muted mb-0">No hay taxistas registrados aún.</p>
+</div>
+{% endif %}
+
+<!-- Pasajeros -->
+<h5 class="fw-bold mb-3" style="color:#1a1a2e;">
+    <i class="ti ti-user"></i> Pasajeros
+    <span class="badge bg-secondary ms-2">{{ passengers|length }}</span>
+</h5>
+
+{% if passengers %}
+<div class="rutaya-table">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th>Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for passenger in passengers %}
+            <tr>
+                <td>{{ passenger.id }}</td>
+                <td><strong>{{ passenger.name }}</strong></td>
+                <td>{{ passenger.email }}</td>
+                <td>{{ passenger.phone }}</td>
+                <td>
+                    {% if passenger.is_active %}
+                        <span class="badge-completed">Activo</span>
+                    {% else %}
+                        <span class="badge-cancelled">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td>{{ passenger.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    {% if passenger.is_active %}
+                        <a href="{{ url_for('admin.deactivate_user', user_id=passenger.id) }}"
+                           class="btn btn-outline-danger btn-sm" style="width:auto; padding:5px 14px;"
+                           onclick="return confirm('¿Seguro que deseas desactivar a este pasajero?')">
+                            <i class="ti ti-ban"></i> Desactivar
+                        </a>
+                    {% else %}
+                        <span class="text-muted" style="font-size:13px;">Desactivado</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="rutaya-card text-center py-4">
+    <p class="text-muted mb-0">No hay pasajeros registrados aún.</p>
+</div>
+{% endif %}
+{% endblock %}
