@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:8000", "--workers", "2"]
+CMD python -c "from wsgi import app, db; db.create_all()" && gunicorn wsgi:app --bind 0.0.0.0:8000 --workers 2
