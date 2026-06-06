@@ -33,21 +33,21 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         {{ form.name.label(class="form-label") }}
                         {{ form.name(class="form-control", placeholder="Tus nombres") }}
                         {% for error in form.name.errors %}
                             <small class="text-danger">{{ error }}</small>
                         {% endfor %}
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         {{ form.paternal_lastname.label(class="form-label") }}
                         {{ form.paternal_lastname(class="form-control", placeholder="Apellido paterno") }}
                         {% for error in form.paternal_lastname.errors %}
                             <small class="text-danger">{{ error }}</small>
                         {% endfor %}
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         {{ form.maternal_lastname.label(class="form-label") }}
                         {{ form.maternal_lastname(class="form-control", placeholder="Apellido materno") }}
                         {% for error in form.maternal_lastname.errors %}
