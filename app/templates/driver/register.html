@@ -123,21 +123,21 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         {{ form.brand.label(class="form-label") }}
                         {{ form.brand(class="form-control", placeholder="Ej: Honda, Yamaha") }}
                         {% for error in form.brand.errors %}
                             <small class="text-danger">{{ error }}</small>
                         {% endfor %}
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-8 mb-3">
                         {{ form.model.label(class="form-label") }}
                         {{ form.model(class="form-control", placeholder="Ej: Wave, Fazer") }}
                         {% for error in form.model.errors %}
                             <small class="text-danger">{{ error }}</small>
                         {% endfor %}
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-4 mb-3">
                         {{ form.year.label(class="form-label") }}
                         {{ form.year(class="form-control", placeholder="2020") }}
                         {% for error in form.year.errors %}
