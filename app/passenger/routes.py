@@ -21,8 +21,11 @@ def dashboard():
 
 @passenger.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated and current_user.role == 'passenger':
-        return redirect(url_for('passenger.dashboard'))
+    if current_user.is_authenticated:
+        if current_user.role == 'passenger':
+            return redirect(url_for('passenger.dashboard'))
+        else:
+            logout_user()
     form = RegisterForm()
     if form.validate_on_submit():
         existing_user = User.query.filter_by(email=form.email.data).first()
