@@ -39,8 +39,7 @@
                 </label>
                 <div class="d-flex gap-2">
                     <input id="origin-input" type="text" class="search-box"
-                        placeholder="Detectando tu ubicación..." readonly
-                        style="background:#f8f9ff; cursor:default;">
+                        placeholder="Detectando tu ubicación...">
                     <button class="location-btn" onclick="useMyLocation()" title="Usar mi ubicación">
                         <i class="ti ti-current-location"></i>
                     </button>
@@ -166,6 +165,27 @@ function initMap() {
         });
     });
 
+// Autocompletar origen también
+    const originAC = new google.maps.places.Autocomplete(
+        document.getElementById('origin-input'),
+        {
+            componentRestrictions: { country: 'bo' },
+            bounds: new google.maps.LatLngBounds(
+                new google.maps.LatLng(-14.90, -65.00),
+                new google.maps.LatLng(-14.75, -64.85)
+            )
+        }
+    );
+    originAC.addListener('place_changed', () => {
+        const place = originAC.getPlace();
+        if (place.geometry) {
+            originLatLng = place.geometry.location;
+            document.getElementById('origin-hidden').value = place.formatted_address;
+            setOriginMarker(originLatLng, place.formatted_address);
+            map.setCenter(originLatLng);
+        }
+    });
+
     // Detectar ubicación automáticamente al cargar
     useMyLocation();
 }
@@ -182,9 +202,18 @@ function useMyLocation() {
             geocoder.geocode({ location: originLatLng }, (results, status) => {
                 let address = '';
                 if (status === 'OK' && results[0]) {
-                    address = results[0].formatted_address;
+                    // Buscar nombre de lugar más descriptivo
+                    const result = results[0];
+                    const components = result.address_components;
+                    let street = '';
+                    let neighborhood = '';
+                    for (let c of components) {
+                        if (c.types.includes('route')) street = c.long_name;
+                        if (c.types.includes('neighborhood') || c.types.includes('sublocality')) neighborhood = c.long_name;
+                    }
+                    address = street ? `${street}${neighborhood ? ', ' + neighborhood : ''}, Trinidad` : result.formatted_address;
                 } else {
-                    address = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+                    address = 'Mi ubicación actual';
                 }
                 document.getElementById('origin-input').value = address;
                 document.getElementById('origin-hidden').value = address;
