@@ -1,219 +1,65 @@
 {% extends 'shared/base.html' %}
-{% block title %}RutaYa - Solicitar Taxi{% endblock %}
+{% block title %}RutaYa - Registro Pasajero{% endblock %}
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/passenger.css') }}">
-<style>
-    #map { height: 380px; width: 100%; border-radius: 12px; }
-    .map-controls { background: #fff; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-    .search-box { width: 100%; padding: 10px 16px; border: 1.5px solid #dfe6e9; border-radius: 10px; font-size: 14px; font-family: 'Poppins', sans-serif; }
-    .search-box:focus { outline: none; border-color: #f9ca24; }
-    .location-btn { background: #f9ca24; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-weight: 600; }
-    .fare-box { background: linear-gradient(135deg, #f9ca24, #f0932b); border-radius: 12px; padding: 1rem; color: #1a1a2e; text-align: center; }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="rutaya-card">
-            <div class="text-center mb-3">
-                <span style="font-size:40px;">📍</span>
-                <h4 class="fw-bold mt-1" style="color:#1a1a2e;">Solicitar Taxi</h4>
-                <p class="text-muted">Marca tu destino en el mapa o escríbelo</p>
-            </div>
-
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-
-            <!-- Mapa -->
-            <div id="map" class="mb-3"></div>
-
-            <!-- Controles de búsqueda -->
-            <div class="map-controls">
-                <div class="row g-2 mb-2">
-                    <div class="col-12">
-                        <label class="form-label"><i class="ti ti-map-pin" style="color:#f9ca24"></i> Tu ubicación actual</label>
-                        <div class="d-flex gap-2">
-                            <input id="origin-input" type="text" class="search-box" placeholder="Detectando tu ubicación...">
-                            <button class="location-btn" onclick="useMyLocation()">
-                                <i class="ti ti-current-location"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col-12">
-                        <label class="form-label"><i class="ti ti-flag" style="color:#e17055"></i> ¿A dónde vas?</label>
-                        <input id="destination-input" type="text" class="search-box" placeholder="Escribe tu destino o haz clic en el mapa">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Estimado de tarifa -->
-            <div class="fare-box mb-3" id="fare-box" style="display:none;">
-                <div class="row">
-                    <div class="col-6">
-                        <div style="font-size:12px;">Distancia estimada</div>
-                        <div style="font-size:20px; font-weight:700;" id="distance-text">—</div>
-                    </div>
-                    <div class="col-6">
-                        <div style="font-size:12px;">Tarifa estimada</div>
-                        <div style="font-size:20px; font-weight:700;" id="fare-text">—</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formulario oculto -->
-            <form method="POST" id="trip-form">
-                {{ form.hidden_tag() }}
-                <input type="hidden" id="origin-hidden" name="origin">
-                <input type="hidden" id="destination-hidden" name="destination">
-
-                <button type="submit" class="btn btn-rutaya-primary" id="request-btn" disabled>
-                    <i class="ti ti-car"></i> Solicitar Taxi Ahora
-                </button>
-                <a href="{{ url_for('passenger.dashboard') }}" class="btn btn-outline-secondary mt-2 w-100" style="border-radius:10px;">
-                    <i class="ti ti-arrow-left"></i> Volver
-                </a>
-            </form>
+<div class="login-wrapper">
+    <div class="login-box" style="max-width: 520px;">
+        <div class="login-logo">
+            <span>🏍️</span>
+            <h2>Crear Cuenta</h2>
+            <p>Regístrate como pasajero en RutaYa</p>
         </div>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control", placeholder="Tu nombre completo") }}
+                {% for error in form.name.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="correo@ejemplo.com") }}
+                {% for error in form.email.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.phone.label(class="form-label") }}
+                {{ form.phone(class="form-control", placeholder="71234567") }}
+                {% for error in form.phone.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="••••••••") }}
+                {% for error in form.password.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+                {% for error in form.confirm_password.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-rutaya-primary">
+                <i class="ti ti-user-plus"></i> Crear cuenta
+            </button>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center text-muted" style="font-size:14px;">
+            ¿Ya tienes cuenta?
+            <a href="{{ url_for('passenger.login') }}" class="text-warning fw-bold">Inicia sesión</a>
+        </p>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-let map, originMarker, destinationMarker, directionsService, directionsRenderer;
-let originLatLng = null, destinationLatLng = null;
-
-function initMap() {
-    const trinidad = { lat: -14.8333, lng: -64.9000 };
-
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 14,
-        center: trinidad,
-        mapTypeControl: false,
-        streetViewControl: false,
-        styles: [{ featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }]
-    });
-
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map,
-        suppressMarkers: true,
-        polylineOptions: { strokeColor: '#f9ca24', strokeWeight: 5 }
-    });
-
-    // Autocompletar origen
-    const originAC = new google.maps.places.Autocomplete(
-        document.getElementById('origin-input'),
-        { componentRestrictions: { country: 'bo' } }
-    );
-    originAC.addListener('place_changed', () => {
-        const place = originAC.getPlace();
-        if (place.geometry) {
-            originLatLng = place.geometry.location;
-            setOriginMarker(originLatLng, place.formatted_address);
-        }
-    });
-
-    // Autocompletar destino
-    const destAC = new google.maps.places.Autocomplete(
-        document.getElementById('destination-input'),
-        { componentRestrictions: { country: 'bo' } }
-    );
-    destAC.addListener('place_changed', () => {
-        const place = destAC.getPlace();
-        if (place.geometry) {
-            destinationLatLng = place.geometry.location;
-            setDestinationMarker(destinationLatLng, place.formatted_address);
-        }
-    });
-
-    // Click en mapa para marcar destino
-    map.addListener('click', (e) => {
-        destinationLatLng = e.latLng;
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: destinationLatLng }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                document.getElementById('destination-input').value = results[0].formatted_address;
-                setDestinationMarker(destinationLatLng, results[0].formatted_address);
-            }
-        });
-    });
-
-    // Detectar ubicación automáticamente
-    useMyLocation();
-}
-
-function useMyLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            originLatLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: originLatLng }, (results, status) => {
-                if (status === 'OK' && results[0]) {
-                    document.getElementById('origin-input').value = results[0].formatted_address;
-                    setOriginMarker(originLatLng, results[0].formatted_address);
-                    map.setCenter(originLatLng);
-                    map.setZoom(15);
-                }
-            });
-        }, err => {
-            document.getElementById('origin-input').placeholder = 'No se pudo detectar ubicación';
-        });
-    }
-}
-
-function setOriginMarker(latLng, address) {
-    if (originMarker) originMarker.setMap(null);
-    originMarker = new google.maps.Marker({
-        position: latLng,
-        map: map,
-        title: 'Tu ubicación',
-        icon: { url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
-    });
-    document.getElementById('origin-hidden').value = address;
-    calculateRoute();
-}
-
-function setDestinationMarker(latLng, address) {
-    if (destinationMarker) destinationMarker.setMap(null);
-    destinationMarker = new google.maps.Marker({
-        position: latLng,
-        map: map,
-        title: 'Destino',
-        icon: { url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' }
-    });
-    document.getElementById('destination-hidden').value = address;
-    calculateRoute();
-}
-
-function calculateRoute() {
-    if (!originLatLng || !destinationLatLng) return;
-    directionsService.route({
-        origin: originLatLng,
-        destination: destinationLatLng,
-        travelMode: google.maps.TravelMode.DRIVING
-    }, (result, status) => {
-        if (status === 'OK') {
-            directionsRenderer.setDirections(result);
-            const leg = result.routes[0].legs[0];
-            const distKm = (leg.distance.value / 1000).toFixed(1);
-            const fare = (10 + distKm * 3.5).toFixed(2);
-            document.getElementById('distance-text').textContent = leg.distance.text;
-            document.getElementById('fare-text').textContent = `Bs. ${fare}`;
-            document.getElementById('fare-box').style.display = 'block';
-            document.getElementById('request-btn').disabled = false;
-        }
-    });
-}
-
-document.getElementById('trip-form').addEventListener('submit', function(e) {
-    if (!document.getElementById('origin-hidden').value || !document.getElementById('destination-hidden').value) {
-        e.preventDefault();
-        alert('Por favor selecciona origen y destino.');
-    }
-});
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initMap" async defer></script>
 {% endblock %}
