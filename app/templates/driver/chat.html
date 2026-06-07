@@ -3,7 +3,12 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/driver.css') }}">
 <style>
-.chat-container { height: 450px; overflow-y: auto; padding: 1rem; background: #f8f9ff; border-radius: 12px; margin-bottom: 1rem; }
+.chat-wrapper { display: flex; flex-direction: column; height: calc(100vh - 200px); }
+.chat-header { padding-bottom: 1rem; border-bottom: 1px solid #f0f0f0; margin-bottom: 0.5rem; }
+.chat-container { flex: 1; overflow-y: auto; padding: 1rem; background: #f8f9ff; border-radius: 12px; }
+.chat-input-bar { position: fixed; bottom: 65px; left: 0; right: 0; background: #fff; padding: 10px 16px; border-top: 1px solid #eee; display: flex; gap: 8px; align-items: center; z-index: 999; }
+.chat-input-bar input { flex: 1; min-width: 0; border-radius: 24px; border: 1.5px solid #dfe6e9; padding: 10px 18px; font-size: 14px; outline: none; }
+.chat-input-bar input:focus { border-color: #00b894; }
 .message { display: flex; margin-bottom: 12px; }
 .message.mine { flex-direction: row-reverse; }
 .message-bubble { max-width: 70%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.4; }
@@ -11,11 +16,7 @@
 .message.other .message-bubble { background: #fff; color: #2d3436; border-radius: 16px 16px 16px 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .message-time { font-size: 11px; opacity: 0.6; margin-top: 4px; }
 .message.mine .message-time { text-align: right; }
-.chat-input { display: flex; gap: 10px; }
-.chat-input input { flex: 1; border-radius: 24px; border: 1.5px solid #dfe6e9; padding: 10px 18px; font-size: 14px; font-family: 'Poppins', sans-serif; }
-.chat-input input:focus { outline: none; border-color: #00b894; }
-.send-btn { background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
-.send-btn:hover { transform: scale(1.1); }
+.send-btn { background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .avatar-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; margin: 0 8px; }
 .av-passenger { background: #74b9ff; color: #2d3436; }
 .av-driver { background: #55efc4; color: #2d3436; }
@@ -25,48 +26,37 @@
 {% block content %}
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="rutaya-card">
-            <!-- Header del chat -->
-            <div class="d-flex align-items-center gap-3 mb-3 pb-3" style="border-bottom: 1px solid #f0f0f0;">
-                <div class="avatar-sm av-passenger" style="width:44px; height:44px; font-size:16px;">
-                    {{ trip.passenger.name[0].upper() }}
-                </div>
-                <div>
-                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;">
-                        {{ trip.passenger.name }}
-                    </h5>
-                    <small class="text-muted">
-                        Viaje #{{ trip.id }} — {{ trip.origin }} → {{ trip.destination }}
-                    </small>
-                </div>
-                <div class="ms-auto">
-                    <a href="{{ url_for('driver.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="ti ti-arrow-left"></i> Volver
-                    </a>
-                </div>
-            </div>
+<div class="rutaya-card chat-wrapper">
+    <div class="chat-header d-flex align-items-center gap-3">
+        <div class="avatar-sm av-passenger" style="width:44px; height:44px; font-size:16px;">
+            {{ trip.passenger.name[0].upper() }}
+        </div>
+        <div style="flex:1; min-width:0;">
+            <h5 class="fw-bold mb-0" style="color:#1a1a2e;">{{ trip.passenger.name }}</h5>
+            <small class="text-muted" style="font-size:12px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                Viaje #{{ trip.id }} — {{ trip.origin }} → {{ trip.destination }}
+            </small>
+        </div>
+        <a href="{{ url_for('driver.dashboard') }}" class="btn btn-outline-secondary btn-sm flex-shrink-0">
+            <i class="ti ti-arrow-left"></i> Volver
+        </a>
+    </div>
 
-            <!-- Mensajes -->
-            <div class="chat-container" id="chat-container">
-                <div id="messages-list"></div>
-                <div id="no-messages" class="text-center text-muted py-4" style="display:none;">
-                    <i class="ti ti-message" style="font-size:32px;"></i>
-                    <p class="mt-2">No hay mensajes aún. ¡Empieza la conversación!</p>
-                </div>
-            </div>
-
-            <!-- Input -->
-            <div class="chat-input">
-                <input type="text" id="message-input" placeholder="Escribe un mensaje..." maxlength="500"
-                    onkeypress="if(event.key==='Enter') sendMessage()">
-                <button class="send-btn" onclick="sendMessage()">
-                    <i class="ti ti-send" style="color:#fff; font-size:18px;"></i>
-                </button>
-            </div>
+    <div class="chat-container" id="chat-container">
+        <div id="messages-list"></div>
+        <div id="no-messages" class="text-center text-muted py-4">
+            <i class="ti ti-message" style="font-size:32px;"></i>
+            <p class="mt-2">No hay mensajes aún. ¡Empieza la conversación!</p>
         </div>
     </div>
+</div>
+
+<div class="chat-input-bar">
+    <input type="text" id="message-input" placeholder="Escribe un mensaje..." maxlength="500"
+        onkeypress="if(event.key==='Enter') sendMessage()">
+    <button class="send-btn" onclick="sendMessage()">
+        <i class="ti ti-send" style="color:#fff; font-size:18px;"></i>
+    </button>
 </div>
 {% endblock %}
 
@@ -82,31 +72,22 @@ function loadMessages() {
         .then(messages => {
             const list = document.getElementById('messages-list');
             const noMsg = document.getElementById('no-messages');
-
-            if (messages.length === 0) {
-                noMsg.style.display = 'block';
-                return;
-            }
+            if (messages.length === 0) { noMsg.style.display = 'block'; return; }
             noMsg.style.display = 'none';
-
             messages.forEach(msg => {
                 if (msg.id > lastMessageId) {
                     lastMessageId = msg.id;
                     const div = document.createElement('div');
                     div.className = `message ${msg.is_mine ? 'mine' : 'other'}`;
                     div.innerHTML = `
-                        <div class="avatar-sm ${msg.is_mine ? 'av-driver' : 'av-passenger'}">
-                            ${msg.sender_name[0].toUpperCase()}
-                        </div>
+                        <div class="avatar-sm ${msg.is_mine ? 'av-driver' : 'av-passenger'}">${msg.sender_name[0].toUpperCase()}</div>
                         <div>
                             <div class="message-bubble">${msg.content}</div>
                             <div class="message-time">${msg.sent_at}</div>
-                        </div>
-                    `;
+                        </div>`;
                     list.appendChild(div);
                 }
             });
-
             const container = document.getElementById('chat-container');
             container.scrollTop = container.scrollHeight;
         });
@@ -116,22 +97,11 @@ function sendMessage() {
     const input = document.getElementById('message-input');
     const content = input.value.trim();
     if (!content) return;
-
     fetch('/api/messages/send', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({ trip_id: TRIP_ID, content: content })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            input.value = '';
-            loadMessages();
-        }
-    });
+    }).then(res => res.json()).then(data => { if (data.success) { input.value = ''; loadMessages(); } });
 }
 
 loadMessages();
