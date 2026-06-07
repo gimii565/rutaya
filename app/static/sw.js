@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rutaya-v1';
+const CACHE_NAME = 'rutaya-v2';
 const urlsToCache = [
     '/',
     '/static/css/base.css',
@@ -24,7 +24,7 @@ self.addEventListener('fetch', event => {
             if (response) return response;
             return fetch(event.request).catch(() => {
                 if (event.request.destination === 'document') {
-                    return caches.match('/passenger/login');
+                    return caches.match(event.request.url);
                 }
             });
         })
