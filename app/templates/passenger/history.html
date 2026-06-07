@@ -2,49 +2,58 @@
 {% block title %}RutaYa - Historial de Viajes{% endblock %}
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/passenger.css') }}">
+<style>
+.trip-card-mobile {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #f9ca24;
+}
+.trip-card-mobile .trip-id { font-size: 12px; color: #999; margin-bottom: 4px; }
+.trip-card-mobile .trip-route { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; }
+.trip-card-mobile .trip-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #636e72; flex-wrap: wrap; gap: 4px; }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col">
-        <h4 class="fw-bold" style="color:#1a1a2e;">
-            <i class="ti ti-history"></i> Historial de Viajes
-        </h4>
-        <p class="text-muted">Todos tus viajes registrados en RutaYa</p>
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h4 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="ti ti-history"></i> Historial de Viajes</h4>
+        <p class="text-muted mb-0" style="font-size:13px;">Todos tus viajes registrados en RutaYa</p>
     </div>
-    <div class="col-auto">
-        <a href="{{ url_for('passenger.dashboard') }}" class="btn btn-outline-secondary">
-            <i class="ti ti-arrow-left"></i> Volver
-        </a>
-    </div>
+    <a href="{{ url_for('passenger.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="ti ti-arrow-left"></i> Volver
+    </a>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
+<div class="row mb-3 g-2">
+    <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-icon">🏍️</div>
             <div class="stat-value">{{ trips|length }}</div>
             <div class="stat-label">Total viajes</div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-icon">✅</div>
             <div class="stat-value">{{ trips|selectattr('status','equalto','completed')|list|length }}</div>
             <div class="stat-label">Completados</div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-icon">❌</div>
             <div class="stat-value">{{ trips|selectattr('status','equalto','cancelled')|list|length }}</div>
             <div class="stat-label">Cancelados</div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-icon">💰</div>
-            <div class="stat-value">
+            <div class="stat-value" style="font-size:16px;">
                 Bs. {{ trips|selectattr('status','equalto','completed')|sum(attribute='fare')|round(2) }}
             </div>
             <div class="stat-label">Total gastado</div>
@@ -53,18 +62,47 @@
 </div>
 
 {% if trips %}
-<div class="rutaya-table">
+<!-- Vista móvil -->
+<div class="d-md-none">
+    {% for trip in trips %}
+    <div class="trip-card-mobile">
+        <div class="trip-id">Viaje #{{ trip.id }} · {{ trip.requested_at.strftime('%d/%m/%Y %H:%M') }}</div>
+        <div class="trip-route">
+            <i class="ti ti-map-pin" style="color:#f9ca24;"></i> {{ trip.origin }}<br>
+            <i class="ti ti-flag" style="color:#e17055;"></i> {{ trip.destination }}
+        </div>
+        <div class="trip-meta">
+            <span><i class="ti ti-user"></i> {{ trip.driver.name if trip.driver else '—' }}</span>
+            <span>
+                {% if trip.status == 'pending' %}<span class="badge-pending">Pendiente</span>
+                {% elif trip.status == 'accepted' %}<span class="badge-accepted">Aceptado</span>
+                {% elif trip.status == 'in_progress' %}<span class="badge-in-progress">En camino</span>
+                {% elif trip.status == 'completed' %}<span class="badge-completed">Completado</span>
+                {% elif trip.status == 'cancelled' %}<span class="badge-cancelled">Cancelado</span>
+                {% endif %}
+            </span>
+            <span>{% if trip.fare %}Bs. {{ trip.fare }}{% else %}—{% endif %}</span>
+            <span>
+                {% if trip.status == 'completed' and not trip.rating %}
+                    <a href="{{ url_for('passenger.rate_trip', trip_id=trip.id) }}" class="btn btn-sm btn-rutaya-primary" style="width:auto; padding:4px 12px;">
+                        <i class="ti ti-star"></i> Calificar
+                    </a>
+                {% elif trip.rating %}
+                    <span style="color:#f9ca24;">{% for i in range(trip.rating) %}★{% endfor %}</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Vista escritorio -->
+<div class="d-none d-md-block rutaya-table">
     <table class="table mb-0">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Origen</th>
-                <th>Destino</th>
-                <th>Conductor</th>
-                <th>Estado</th>
-                <th>Tarifa</th>
-                <th>Fecha</th>
-                <th>Calificación</th>
+                <th>#</th><th>Origen</th><th>Destino</th><th>Conductor</th>
+                <th>Estado</th><th>Tarifa</th><th>Fecha</th><th>Calificación</th>
             </tr>
         </thead>
         <tbody>
@@ -73,47 +111,25 @@
                 <td>{{ trip.id }}</td>
                 <td>{{ trip.origin }}</td>
                 <td>{{ trip.destination }}</td>
+                <td>{{ trip.driver.name if trip.driver else '—' }}</td>
                 <td>
-                    {% if trip.driver %}
-                        {{ trip.driver.name }}
-                    {% else %}
-                        <span class="text-muted">—</span>
+                    {% if trip.status == 'pending' %}<span class="badge-pending">Pendiente</span>
+                    {% elif trip.status == 'accepted' %}<span class="badge-accepted">Aceptado</span>
+                    {% elif trip.status == 'in_progress' %}<span class="badge-in-progress">En camino</span>
+                    {% elif trip.status == 'completed' %}<span class="badge-completed">Completado</span>
+                    {% elif trip.status == 'cancelled' %}<span class="badge-cancelled">Cancelado</span>
                     {% endif %}
                 </td>
-                <td>
-                    {% if trip.status == 'pending' %}
-                        <span class="badge-pending">Pendiente</span>
-                    {% elif trip.status == 'accepted' %}
-                        <span class="badge-accepted">Aceptado</span>
-                    {% elif trip.status == 'in_progress' %}
-                        <span class="badge-in-progress">En camino</span>
-                    {% elif trip.status == 'completed' %}
-                        <span class="badge-completed">Completado</span>
-                    {% elif trip.status == 'cancelled' %}
-                        <span class="badge-cancelled">Cancelado</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if trip.fare %}
-                        Bs. {{ trip.fare }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
+                <td>{% if trip.fare %}Bs. {{ trip.fare }}{% else %}—{% endif %}</td>
                 <td>{{ trip.requested_at.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
                     {% if trip.status == 'completed' and not trip.rating %}
-                        <a href="{{ url_for('passenger.rate_trip', trip_id=trip.id) }}"
-                           class="btn btn-sm btn-rutaya-primary" style="width:auto; padding:4px 12px;">
+                        <a href="{{ url_for('passenger.rate_trip', trip_id=trip.id) }}" class="btn btn-sm btn-rutaya-primary" style="width:auto; padding:4px 12px;">
                             <i class="ti ti-star"></i> Calificar
                         </a>
                     {% elif trip.rating %}
-                        <span style="color:#f9ca24;">
-                            {% for i in range(trip.rating) %}★{% endfor %}
-                        </span>
-                    {% else %}
-                        —
-                    {% endif %}
+                        <span style="color:#f9ca24;">{% for i in range(trip.rating) %}★{% endfor %}</span>
+                    {% else %}—{% endif %}
                 </td>
             </tr>
             {% endfor %}
