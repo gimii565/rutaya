@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, current_user
 from app import db
 from app.driver import driver
@@ -161,6 +161,7 @@ def trips():
         driver_id=current_user.id
     ).order_by(Trip.requested_at.desc()).all()
     return render_template('driver/trips.html', trips=all_trips)
+
 @driver.route('/earnings')
 def earnings():
     if not current_user.is_authenticated or current_user.role != 'driver':
@@ -169,30 +170,24 @@ def earnings():
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
     month_start = today.replace(day=1)
-
     trips = Trip.query.filter_by(
         driver_id=current_user.id,
         status='completed'
     ).order_by(Trip.requested_at.desc()).all()
-
     total_earnings = sum(t.fare for t in trips if t.fare) or 0
     total_trips = len(trips)
-
     today_earnings = sum(
         t.fare for t in trips
         if t.fare and t.requested_at.date() == today
     ) or 0
-
     week_earnings = sum(
         t.fare for t in trips
         if t.fare and t.requested_at.date() >= week_start
     ) or 0
-
     month_earnings = sum(
         t.fare for t in trips
         if t.fare and t.requested_at.date() >= month_start
     ) or 0
-
     return render_template('driver/earnings.html',
         trips=trips,
         total_earnings=total_earnings,
@@ -201,6 +196,7 @@ def earnings():
         week_earnings=week_earnings,
         month_earnings=month_earnings
     )
+
 @driver.route('/chat/<int:trip_id>')
 def chat(trip_id):
     if not current_user.is_authenticated or current_user.role != 'driver':
@@ -209,6 +205,28 @@ def chat(trip_id):
     if trip.driver_id != current_user.id:
         return redirect(url_for('driver.dashboard'))
     return render_template('driver/chat.html', trip=trip)
+
+@driver.route('/subscribe-push', methods=['POST'])
+def subscribe_push():
+    if not current_user.is_authenticated or current_user.role != 'driver':
+        return jsonify({'error': 'no autorizado'}), 401
+    data = request.get_json()
+    from app.models.push_subscription import PushSubscription
+    existing = PushSubscription.query.filter_by(
+        user_id=current_user.id,
+        endpoint=data['endpoint']
+    ).first()
+    if not existing:
+        sub = PushSubscription(
+            user_id=current_user.id,
+            endpoint=data['endpoint'],
+            p256dh=data['keys']['p256dh'],
+            auth=data['keys']['auth']
+        )
+        db.session.add(sub)
+        db.session.commit()
+    return jsonify({'ok': True})
+
 import os
 from werkzeug.utils import secure_filename
 

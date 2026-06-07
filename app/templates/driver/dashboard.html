@@ -247,4 +247,42 @@ function trackPassenger() {
 }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initMap" async defer></script>
+
+<script>
+// Notificaciones push para taxista
+const VAPID_PUBLIC_KEY = '048813a75d7d03aa72e0aa266f0cc493c700eeb856a7948bbc3b38000a190baf5ed3eb8f9c6d525d5144d666ad060bb99bce3bc5f64ddcd3f168c99e9707aceabb';
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+}
+
+async function subscribeToPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+        const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+        await fetch('/driver/subscribe-push', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(sub.toJSON())
+        });
+        console.log('Suscripción push registrada');
+    } catch(e) {
+        console.log('Error push:', e);
+    }
+}
+
+subscribeToPush();
+</script>
 {% endblock %}
