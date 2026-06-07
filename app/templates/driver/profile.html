@@ -81,7 +81,7 @@ input:checked + .toggle-slider:before { transform: translateX(28px); }
                         <i class="ti ti-camera"></i> Cambiar foto
                     </label>
                     <input type="file" id="photo-input" name="profile_photo" accept="image/*"
-                        capture="user" style="display:none;" onchange="previewPhoto(this)">
+                        style="display:none;" onchange="previewPhoto(this)">
                     <div id="photo-preview" class="mt-2" style="display:none;">
                         <img id="preview-img" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid #00b894;">
                     </div>
@@ -133,38 +133,4 @@ input:checked + .toggle-slider:before { transform: translateX(28px); }
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="action" value="change_password">
                 <div class="mb-3">
-                    <label class="form-label">Contraseña actual</label>
-                    <input type="password" name="current_password" class="form-control" placeholder="••••••••" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Nueva contraseña</label>
-                    <input type="password" name="new_password" class="form-control" placeholder="••••••••" required minlength="6">
-                </div>
-                <div class="mb-4">
-                    <label class="form-label">Confirmar nueva contraseña</label>
-                    <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" required minlength="6">
-                </div>
-                <button type="submit" class="btn btn-rutaya-danger" style="width:auto;">
-                    <i class="ti ti-lock"></i> Cambiar contraseña
-                </button>
-            </form>
-        </div>
-
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-function previewPhoto(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            document.getElementById('preview-img').src = e.target.result;
-            document.getElementById('photo-preview').style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-</script>
-{% endblock %}
+                    <label class="form-label">Contras
