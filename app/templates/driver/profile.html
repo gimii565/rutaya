@@ -87,18 +87,18 @@ input:checked + .toggle-slider:before { transform: translateX(28px); }
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">Nombres</label>
+                    <input type="text" name="name" class="form-control"
+                        value="{{ current_user.name }}" required>
+                </div>
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Nombres</label>
-                        <input type="text" name="name" class="form-control"
-                            value="{{ current_user.name }}" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label class="form-label">Apellido paterno</label>
                         <input type="text" name="paternal_lastname" class="form-control"
                             value="{{ current_user.paternal_lastname or '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label class="form-label">Apellido materno</label>
                         <input type="text" name="maternal_lastname" class="form-control"
                             value="{{ current_user.maternal_lastname or '' }}">
