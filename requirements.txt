@@ -7,4 +7,5 @@ python-dotenv
 werkzeug
 email-validator
 pillow
-gunicornpywebpush
+gunicorn
+pywebpush
