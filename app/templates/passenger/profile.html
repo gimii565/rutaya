@@ -110,6 +110,13 @@
             </form>
         </div>
 
+        <!-- Cerrar sesión -->
+        <div class="rutaya-card mt-3">
+            <a href="{{ url_for('passenger.logout') }}" class="btn btn-outline-danger w-100">
+                <i class="ti ti-logout"></i> Cerrar sesión
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}
