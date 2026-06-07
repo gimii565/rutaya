@@ -253,9 +253,11 @@
 
         {% if current_user.is_authenticated %}
         <!-- Botón hamburguesa solo en móvil -->
+        {% if request.endpoint and not request.endpoint.endswith('login') and not request.endpoint.endswith('register') %}
         <button class="menu-btn d-lg-none" onclick="openMenu()">
             <i class="ti ti-menu-2"></i>
         </button>
+        {% endif %}
 
         <!-- Navbar normal solo en escritorio -->
         <div class="navbar-nav ms-auto d-none d-lg-flex flex-row">
