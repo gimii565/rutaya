@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-title" content="RutaYa">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <style>
-        /* MENÚ LATERAL */
+        /* MENÚ LATERAL (solo admin) */
         .side-menu-overlay {
             display: none;
             position: fixed;
@@ -25,7 +25,6 @@
             z-index: 1040;
         }
         .side-menu-overlay.active { display: block; }
-
         .side-menu {
             position: fixed;
             top: 0; right: -280px;
@@ -37,7 +36,6 @@
             overflow-y: auto;
         }
         .side-menu.active { right: 0; }
-
         .side-menu-header {
             padding: 1.5rem;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -45,113 +43,96 @@
             align-items: center;
             justify-content: space-between;
         }
-
-        .side-menu-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .side-menu-user { display: flex; align-items: center; gap: 12px; }
         .side-menu-avatar {
             width: 44px; height: 44px;
             border-radius: 50%;
             background: #f9ca24;
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; font-weight: 700;
-            color: #1a1a2e;
-            flex-shrink: 0;
+            color: #1a1a2e; flex-shrink: 0;
         }
-
-        .side-menu-name {
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-
-        .side-menu-role {
-            color: #f9ca24;
-            font-size: 11px;
-        }
-
+        .side-menu-name { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.2; }
+        .side-menu-role { color: #f9ca24; font-size: 11px; }
         .side-menu-close {
             background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
+            border: none; color: #fff;
             width: 32px; height: 32px;
-            border-radius: 50%;
-            font-size: 16px;
-            cursor: pointer;
+            border-radius: 50%; font-size: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-
-        .side-menu-items {
-            padding: 1rem 0;
-        }
-
+        .side-menu-items { padding: 1rem 0; }
         .side-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
+            display: flex; align-items: center; gap: 14px;
             padding: 14px 1.5rem;
             color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            text-decoration: none; font-size: 15px; font-weight: 500;
+            transition: all 0.2s; border-left: 3px solid transparent;
         }
+        .side-menu-item:hover { background: rgba(255,255,255,0.08); color: #f9ca24; border-left-color: #f9ca24; }
+        .side-menu-item i { font-size: 20px; width: 24px; text-align: center; }
+        .side-menu-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 8px 1.5rem; }
+        .side-menu-item.logout { color: #ff7675; }
+        .side-menu-item.logout:hover { background: rgba(255,118,117,0.1); border-left-color: #ff7675; color: #ff7675; }
 
-        .side-menu-item:hover {
-            background: rgba(255,255,255,0.08);
-            color: #f9ca24;
-            border-left-color: #f9ca24;
-        }
-
-        .side-menu-item i {
-            font-size: 20px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .side-menu-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-            margin: 8px 1.5rem;
-        }
-
-        .side-menu-item.logout {
-            color: #ff7675;
-        }
-        .side-menu-item.logout:hover {
-            background: rgba(255,118,117,0.1);
-            border-left-color: #ff7675;
-            color: #ff7675;
-        }
-
-        /* Navbar simplificada */
+        /* Navbar */
         .rutaya-navbar .menu-btn {
             background: rgba(255,255,255,0.15);
-            border: none;
-            color: #fff;
+            border: none; color: #fff;
             width: 38px; height: 38px;
-            border-radius: 10px;
-            font-size: 20px;
-            cursor: pointer;
+            border-radius: 10px; font-size: 20px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: background 0.2s;
         }
         .rutaya-navbar .menu-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* BARRA INFERIOR (pasajero y taxista) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+        }
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #999;
+            font-size: 11px;
+            font-weight: 500;
+            gap: 3px;
+            flex: 1;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+        .bottom-nav a i { font-size: 22px; }
+        .bottom-nav a.active { color: #f9ca24; }
+        .bottom-nav a:hover { color: #f9ca24; }
+        .bottom-nav a.driver-active { color: #00b894; }
+        .bottom-nav a.driver-hover:hover { color: #00b894; }
+
+        /* Espacio para que el contenido no quede tapado por la barra */
+        {% if current_user.is_authenticated and current_user.role in ['passenger', 'driver'] %}
+        .container.mt-4 { padding-bottom: 80px; }
+        {% endif %}
     </style>
 </head>
 <body>
 
-<!-- Overlay -->
+<!-- Overlay (solo admin) -->
 <div class="side-menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
 
-<!-- Menú lateral -->
+<!-- Menú lateral (solo admin) -->
 <div class="side-menu" id="sideMenu">
-    {% if current_user.is_authenticated %}
+    {% if current_user.is_authenticated and current_user.role == 'admin' %}
     <div class="side-menu-header">
         <div class="side-menu-user">
             {% if current_user.profile_photo %}
@@ -162,77 +143,20 @@
             {% endif %}
             <div>
                 <div class="side-menu-name">{{ current_user.name }}</div>
-                <div class="side-menu-role">
-                    {% if current_user.role == 'passenger' %}Pasajero
-                    {% elif current_user.role == 'driver' %}Mototaxista
-                    {% else %}Administrador{% endif %}
-                </div>
+                <div class="side-menu-role">Administrador</div>
             </div>
         </div>
         <button class="side-menu-close" onclick="closeMenu()">✕</button>
     </div>
-
     <div class="side-menu-items">
-        {% if current_user.role == 'passenger' %}
-            <a href="{{ url_for('passenger.dashboard') }}" class="side-menu-item">
-                <i class="ti ti-home"></i> Inicio
-            </a>
-            <a href="{{ url_for('passenger.request_trip') }}" class="side-menu-item">
-                <span style="font-size:20px;">🏍️</span> Solicitar moto
-            </a>
-            <a href="{{ url_for('passenger.history') }}" class="side-menu-item">
-                <i class="ti ti-history"></i> Mis viajes
-            </a>
-            <a href="{{ url_for('passenger.profile') }}" class="side-menu-item">
-                <i class="ti ti-user"></i> Mi perfil
-            </a>
-            <div class="side-menu-divider"></div>
-            <a href="{{ url_for('passenger.logout') }}" class="side-menu-item logout">
-                <i class="ti ti-logout"></i> Cerrar sesión
-            </a>
-
-        {% elif current_user.role == 'driver' %}
-            <a href="{{ url_for('driver.dashboard') }}" class="side-menu-item">
-                <i class="ti ti-home"></i> Inicio
-            </a>
-            <a href="{{ url_for('driver.trips') }}" class="side-menu-item">
-                <i class="ti ti-history"></i> Mis viajes
-            </a>
-            <a href="{{ url_for('driver.earnings') }}" class="side-menu-item">
-                <i class="ti ti-cash"></i> Mis ganancias
-            </a>
-            <a href="{{ url_for('driver.profile') }}" class="side-menu-item">
-                <i class="ti ti-user"></i> Mi perfil
-            </a>
-            <div class="side-menu-divider"></div>
-            <a href="{{ url_for('driver.logout') }}" class="side-menu-item logout">
-                <i class="ti ti-logout"></i> Cerrar sesión
-            </a>
-
-        {% elif current_user.role == 'admin' %}
-            <a href="{{ url_for('admin.dashboard') }}" class="side-menu-item">
-                <i class="ti ti-home"></i> Dashboard
-            </a>
-            <a href="{{ url_for('admin.users') }}" class="side-menu-item">
-                <i class="ti ti-users"></i> Usuarios
-            </a>
-            <a href="{{ url_for('admin.trips') }}" class="side-menu-item">
-                <i class="ti ti-car"></i> Viajes
-            </a>
-            <a href="{{ url_for('admin.reports') }}" class="side-menu-item">
-                <i class="ti ti-chart-bar"></i> Reportes
-            </a>
-            <a href="{{ url_for('admin.fare_settings') }}" class="side-menu-item">
-                <i class="ti ti-cash"></i> Tarifas
-            </a>
-            <a href="{{ url_for('admin.associations') }}" class="side-menu-item">
-                <i class="ti ti-building"></i> Asociaciones
-            </a>
-            <div class="side-menu-divider"></div>
-            <a href="{{ url_for('admin.logout') }}" class="side-menu-item logout">
-                <i class="ti ti-logout"></i> Cerrar sesión
-            </a>
-        {% endif %}
+        <a href="{{ url_for('admin.dashboard') }}" class="side-menu-item"><i class="ti ti-home"></i> Dashboard</a>
+        <a href="{{ url_for('admin.users') }}" class="side-menu-item"><i class="ti ti-users"></i> Usuarios</a>
+        <a href="{{ url_for('admin.trips') }}" class="side-menu-item"><i class="ti ti-car"></i> Viajes</a>
+        <a href="{{ url_for('admin.reports') }}" class="side-menu-item"><i class="ti ti-chart-bar"></i> Reportes</a>
+        <a href="{{ url_for('admin.fare_settings') }}" class="side-menu-item"><i class="ti ti-cash"></i> Tarifas</a>
+        <a href="{{ url_for('admin.associations') }}" class="side-menu-item"><i class="ti ti-building"></i> Asociaciones</a>
+        <div class="side-menu-divider"></div>
+        <a href="{{ url_for('admin.logout') }}" class="side-menu-item logout"><i class="ti ti-logout"></i> Cerrar sesión</a>
     </div>
     {% endif %}
 </div>
@@ -252,65 +176,36 @@
         </a>
 
         {% if current_user.is_authenticated %}
-        <!-- Botón hamburguesa solo en móvil -->
-        {% if request.endpoint and not request.endpoint.endswith('login') and not request.endpoint.endswith('register') %}
-        <button class="menu-btn d-lg-none" onclick="openMenu()">
-            <i class="ti ti-menu-2"></i>
-        </button>
-        {% endif %}
-
-        <!-- Navbar normal solo en escritorio -->
-        <div class="navbar-nav ms-auto d-none d-lg-flex flex-row">
-            <span class="nav-item nav-link text-white">
-                <i class="ti ti-user"></i> {{ current_user.name }}
-            </span>
-            {% if current_user.role == 'passenger' %}
-                <a class="nav-link text-white" href="{{ url_for('passenger.request_trip') }}">
-                    🏍️ Solicitar
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('passenger.history') }}">
-                    <i class="ti ti-history"></i> Viajes
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('passenger.profile') }}">
-                    <i class="ti ti-user"></i> Perfil
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('passenger.logout') }}">
-                    <i class="ti ti-logout"></i> Salir
-                </a>
-            {% elif current_user.role == 'driver' %}
-                <a class="nav-link text-white" href="{{ url_for('driver.trips') }}">
-                    <i class="ti ti-history"></i> Viajes
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('driver.earnings') }}">
-                    <i class="ti ti-cash"></i> Ganancias
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('driver.profile') }}">
-                    <i class="ti ti-user"></i> Perfil
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('driver.logout') }}">
-                    <i class="ti ti-logout"></i> Salir
-                </a>
-            {% elif current_user.role == 'admin' %}
-                <a class="nav-link text-white" href="{{ url_for('admin.users') }}">
-                    <i class="ti ti-users"></i> Usuarios
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('admin.trips') }}">
-                    <i class="ti ti-car"></i> Viajes
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('admin.reports') }}">
-                    <i class="ti ti-chart-bar"></i> Reportes
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('admin.fare_settings') }}">
-                    <i class="ti ti-cash"></i> Tarifas
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('admin.associations') }}">
-                    <i class="ti ti-building"></i> Asociaciones
-                </a>
-                <a class="nav-link text-white" href="{{ url_for('admin.logout') }}">
-                    <i class="ti ti-logout"></i> Salir
-                </a>
+            {% if current_user.role == 'admin' %}
+            {% if request.endpoint and not request.endpoint.endswith('login') and not request.endpoint.endswith('register') %}
+            <button class="menu-btn d-lg-none" onclick="openMenu()">
+                <i class="ti ti-menu-2"></i>
+            </button>
             {% endif %}
-        </div>
+            {% endif %}
+
+            <!-- Navbar escritorio -->
+            <div class="navbar-nav ms-auto d-none d-lg-flex flex-row">
+                <span class="nav-item nav-link text-white"><i class="ti ti-user"></i> {{ current_user.name }}</span>
+                {% if current_user.role == 'passenger' %}
+                    <a class="nav-link text-white" href="{{ url_for('passenger.request_trip') }}">🏍️ Solicitar</a>
+                    <a class="nav-link text-white" href="{{ url_for('passenger.history') }}"><i class="ti ti-history"></i> Viajes</a>
+                    <a class="nav-link text-white" href="{{ url_for('passenger.profile') }}"><i class="ti ti-user"></i> Perfil</a>
+                    <a class="nav-link text-white" href="{{ url_for('passenger.logout') }}"><i class="ti ti-logout"></i> Salir</a>
+                {% elif current_user.role == 'driver' %}
+                    <a class="nav-link text-white" href="{{ url_for('driver.trips') }}"><i class="ti ti-history"></i> Viajes</a>
+                    <a class="nav-link text-white" href="{{ url_for('driver.earnings') }}"><i class="ti ti-cash"></i> Ganancias</a>
+                    <a class="nav-link text-white" href="{{ url_for('driver.profile') }}"><i class="ti ti-user"></i> Perfil</a>
+                    <a class="nav-link text-white" href="{{ url_for('driver.logout') }}"><i class="ti ti-logout"></i> Salir</a>
+                {% elif current_user.role == 'admin' %}
+                    <a class="nav-link text-white" href="{{ url_for('admin.users') }}"><i class="ti ti-users"></i> Usuarios</a>
+                    <a class="nav-link text-white" href="{{ url_for('admin.trips') }}"><i class="ti ti-car"></i> Viajes</a>
+                    <a class="nav-link text-white" href="{{ url_for('admin.reports') }}"><i class="ti ti-chart-bar"></i> Reportes</a>
+                    <a class="nav-link text-white" href="{{ url_for('admin.fare_settings') }}"><i class="ti ti-cash"></i> Tarifas</a>
+                    <a class="nav-link text-white" href="{{ url_for('admin.associations') }}"><i class="ti ti-building"></i> Asociaciones</a>
+                    <a class="nav-link text-white" href="{{ url_for('admin.logout') }}"><i class="ti ti-logout"></i> Salir</a>
+                {% endif %}
+            </div>
         {% endif %}
     </div>
 </nav>
@@ -326,9 +221,48 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-
     {% block content %}{% endblock %}
 </div>
+
+<!-- Barra inferior pasajero -->
+{% if current_user.is_authenticated and current_user.role == 'passenger' %}
+{% if request.endpoint and not request.endpoint.endswith('login') and not request.endpoint.endswith('register') %}
+<nav class="bottom-nav">
+    <a href="{{ url_for('passenger.dashboard') }}" class="{% if request.endpoint == 'passenger.dashboard' %}active{% endif %}">
+        <i class="ti ti-home"></i> Inicio
+    </a>
+    <a href="{{ url_for('passenger.request_trip') }}" class="{% if request.endpoint == 'passenger.request_trip' %}active{% endif %}">
+        <i class="ti ti-moped"></i> Solicitar
+    </a>
+    <a href="{{ url_for('passenger.history') }}" class="{% if request.endpoint == 'passenger.history' %}active{% endif %}">
+        <i class="ti ti-history"></i> Viajes
+    </a>
+    <a href="{{ url_for('passenger.profile') }}" class="{% if request.endpoint == 'passenger.profile' %}active{% endif %}">
+        <i class="ti ti-user"></i> Perfil
+    </a>
+</nav>
+{% endif %}
+{% endif %}
+
+<!-- Barra inferior taxista -->
+{% if current_user.is_authenticated and current_user.role == 'driver' %}
+{% if request.endpoint and not request.endpoint.endswith('login') and not request.endpoint.endswith('register') %}
+<nav class="bottom-nav">
+    <a href="{{ url_for('driver.dashboard') }}" class="{% if request.endpoint == 'driver.dashboard' %}driver-active{% endif %}">
+        <i class="ti ti-home"></i> Inicio
+    </a>
+    <a href="{{ url_for('driver.trips') }}" class="{% if request.endpoint == 'driver.trips' %}driver-active{% endif %}">
+        <i class="ti ti-history"></i> Viajes
+    </a>
+    <a href="{{ url_for('driver.earnings') }}" class="{% if request.endpoint == 'driver.earnings' %}driver-active{% endif %}">
+        <i class="ti ti-cash"></i> Ganancias
+    </a>
+    <a href="{{ url_for('driver.profile') }}" class="{% if request.endpoint == 'driver.profile' %}driver-active{% endif %}">
+        <i class="ti ti-user"></i> Perfil
+    </a>
+</nav>
+{% endif %}
+{% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
