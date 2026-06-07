@@ -94,7 +94,7 @@ def login():
             if not user.is_active:
                 flash('Tu cuenta aún no ha sido aprobada por el administrador.', 'warning')
                 return redirect(url_for('driver.login'))
-            login_user(user)
+            login_user(user, remember=True)
             return redirect(url_for('driver.dashboard'))
         flash('Correo o contraseña incorrectos.', 'danger')
     return render_template('driver/login.html', form=form, manifest_url='/static/manifest-driver.json')

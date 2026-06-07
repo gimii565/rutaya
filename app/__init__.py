@@ -16,6 +16,7 @@ def create_app():
     login_manager.init_app(app)
     csrf.init_app(app)
     login_manager.login_view = 'passenger.login'
+    login_manager.remember_cookie_duration = __import__('datetime').timedelta(days=30)
 
     @app.context_processor
     def inject_google_maps_key():
