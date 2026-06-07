@@ -97,7 +97,7 @@ def login():
             login_user(user)
             return redirect(url_for('driver.dashboard'))
         flash('Correo o contraseña incorrectos.', 'danger')
-    return render_template('driver/login.html', form=form)
+    return render_template('driver/login.html', form=form, manifest_url='/static/manifest-driver.json')
 
 @driver.route('/logout')
 def logout():
